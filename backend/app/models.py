@@ -1,16 +1,17 @@
 #!/usr/bin/python3
 """" Defines all the models/tables  in the book tracker database""""
-from flask_sqlalchemy import flask_sqlalchemy
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from sqlalchemy import Column, String, Integer, ForeignKey
+# from sqlalchemy import Column, String, Integer, ForeignKey
 from werkzeug.security import generate_password_hash, check_password_hash
 from backend.app import login
 from backend.app import db
+# from typing import Optional
 
 
 
 # User class
-class Users(Base):
+class User(UserMixin, db.Model):
     """Stores user information. Each entry is a user
     Attributes:
             id (int): The unique identifier for each user.
@@ -21,23 +22,13 @@ class Users(Base):
             books (list[UserBook]): All of a user's saved books
     """
     __tablename__ = 'user'
-    id: int = Column(Integer, primary_key=true)
-    username: str = Column(String(50), nullable=False, unique=True)
-    email: str = Column(String(120), nullable=False, unique=True)
-    password_hash: str = Column(String(128), nullable=False, unique=True)
+    id: int = db.Column(db.Integer, primary_key=True)
+    username: str = db.Column(db.String(64), index=True, unique=True)
+    email: str = db.Column(db.String(120), index=True, unique=True)
+    password_hash: str = db.Column(db.String(256), nullable=True)
 
-    shelves: list['Shelf'] = db 
-
-
-class Shelf(Base):
-from typing import Optional
-
-
-class User(UserMixin, db.Model):
-    id = so.mapped_column(sa.Integer, primary_key=True)
-    username = so.mapped_column(sa.String(64), index=True, unique=True)
-    email = so.mapped_column(sa.String(120), index=True, unique=True)
-    password_hash = so.mapped_column(sa.String(256), nullable=True)
+    shelves: list['Shelf'] = db.relationship('Shelf', backref='user', lazy=True)
+    books: list['UserBook'] = db.relationship('UserBook', backref='user', lazy=True)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -47,6 +38,10 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+
+class Shelf(Base):
+
 
 
 @login.user_loader

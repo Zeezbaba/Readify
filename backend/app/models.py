@@ -6,11 +6,10 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from backend.app import login
 from backend.app import db
-# from typing import Optional
+from typing import Optional
 
 
 
-# User class
 class User(UserMixin, db.Model):
     """Stores user information. Each entry is a user
     Attributes:
@@ -21,7 +20,6 @@ class User(UserMixin, db.Model):
             shelves (list[]): A User's shelves
             books (list[UserBook]): All of a user's saved books
     """
-    __tablename__ = 'user'
     id: int = db.Column(db.Integer, primary_key=True)
     username: str = db.Column(db.String(64), index=True, unique=True)
     email: str = db.Column(db.String(120), index=True, unique=True)
@@ -31,17 +29,82 @@ class User(UserMixin, db.Model):
     books: list['UserBook'] = db.relationship('UserBook', backref='user', lazy=True)
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        """ String representaion of User instance
+        """
+        return '<User: {}>'.format(self.username)
 
-    def set_password(self, password):
+    def set_password(self, password: str) -> None:
+        """Generates a hashed password and stores it in the `password_hash` attribute.
+
+        Args:
+            password (str): The plaintext password to be hashed and stored.
+        """
         self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password):
+    def check_password(self, password:str) -> bool:
+        """ Checks if password provided at login matches the stored hashed password.
+
+        Returns:
+                bool: True if passsword matches, else False
+        """
         return check_password_hash(self.password_hash, password)
 
+class Shelf(UserMixin, db.Model):
+    """ Representation of a user's shelf
+    Attributes:
+            id (int): Unique identifier for the shelf
+            name (str): Name of the shelf
+            user_id (int): Unique id of the user the shelf belongs to 
+    """
+    id = db.Column(db.Integer, primary_key)
+    name = db.Column(db.Sting(50), nullable=False)
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
 
-class Shelf(Base):
+    def __repr__(self):
+        """ String representaion of User instance
+        """
+        return '<{} Shelf>'.format(self.name)
 
+        #TODO: Add relevant functions (add shelf etc)
+
+class Book(UserMixin, db.Model):
+    """ A book in the application
+    Attributes:
+            id (int): Unique id of book
+            title (str): Name of  book
+            author (str): Name of book's author
+            genre (str): The genre the book belongs to
+            publication_date (date): Date the book was published
+            isbn (str): ISBN of the book. Unique
+            cover_image (str): URL of book's cover image
+            description (str): Description / synopsis of the book
+            users (lis[UserBook]): relationship list of all users that have this book
+    """
+    id: int = db.Column(db.Integer, primary_key=True)
+    title: str = db.Column(db.String(128), index=True, nullable=False)
+    author: str = db.Column(db.String(128), index=True, nullable=False)
+    isbn: str = db.Column(db.String(128), index=True, nullable=False)
+    publication_date: Optional[date] = db.Column(db.Date, nullable=True)
+    genre: str = db.column(db.String(100), nullable=True)
+    cover_image = db.Column(db.String(255), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    users = db.relationship('UserBook', backref='book', lazy=True)
+
+    def __repr__(self):
+        """ String representaion of Book instance
+        """
+        return '<Book: {} by {}>'.format(self.title, self.author)
+    #TODO: Add relevant functions for books
+
+class UserBook(UserMixin, db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
+    shelf_id = db.Column(db.Integer, db.ForeignKey('shelf.id'), nullable=True)  
+
+    def __repr__(self):
+        return f''  #TODO: repr of userbooks
 
 
 @login.user_loader

@@ -1,0 +1,1 @@
+from backend.app import flask_app

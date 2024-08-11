@@ -97,7 +97,15 @@ class Book(UserMixin, db.Model):
     #TODO: Add relevant functions for books
 
 class UserBook(UserMixin, db.Model):
+    """table of the many-to-many relationship between users and books, 
+    with an optional shelf association.
 
+    Attributes:
+        id (int): The unique identifier for the user-book relationship.
+        user_id (int): The ID of the user who owns this book.
+        book_id (int): The ID of the book.
+        shelf_id (Optional[int]): The ID of the shelf where the book is placed, or None if not specified.
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)

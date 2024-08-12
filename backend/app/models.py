@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""" Defines all the models/tables  in the book tracker database""""
+""" Defines all the models/tables  in the book tracker database"""
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 # from sqlalchemy import Column, String, Integer, ForeignKey
@@ -21,12 +21,13 @@ class User(UserMixin, db.Model):
             shelves (list[]): A User's shelves
             books (list[UserBook]): All of a user's saved books
     """
-    id: int = db.Column(db.Integer, primary_key=True)
-    username: str = db.Column(db.String(64), index=True, unique=True)
+    __allow_unmapped__ = True  # Allow legacy annotations
+    id: db.Mapped[int] = db.Column(db.Integer, primary_key=True)
+    username: db.Mapped[str] = db.Column(db.String(64), index=True, unique=True)
     email: str = db.Column(db.String(120), index=True, unique=True)
     password_hash: str = db.Column(db.String(256), nullable=True)
 
-    shelves: list['Shelf'] = db.relationship('Shelf', backref='user', lazy=True)
+    shelves: db.Mapped[list['Shelf']] = db.relationship('Shelf', backref='user', lazy=True)
     books: list['UserBook'] = db.relationship('UserBook', backref='user', lazy=True)
 
     def __repr__(self):
@@ -68,9 +69,10 @@ class Shelf(UserMixin, db.Model):
             name (str): Name of the shelf
             user_id (int): Unique id of the user the shelf belongs to 
     """
-    id = db.Column(db.Integer, primary_key)
+    __allow_unmapped__ = True  # Allow legacy annotations
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id', name='fk_shelf_user_id'))
 
     def __repr__(self):
         """ String representaion of User instance
@@ -92,6 +94,7 @@ class Book(UserMixin, db.Model):
             description (str): Description / synopsis of the book
             users (lis[UserBook]): relationship list of all users that have this book
     """
+    __allow_unmapped__ = True  # Allow legacy annotations
     id: int = db.Column(db.Integer, primary_key=True)
     title: str = db.Column(db.String(128), index=True, nullable=False)
     author: str = db.Column(db.String(128), index=True, nullable=False)
@@ -130,10 +133,11 @@ class UserBook(UserMixin, db.Model):
         book_id (int): The ID of the book.
         shelf_id (Optional[int]): The ID of the shelf where the book is placed, or None if not specified.
     """
+    __allow_unmapped__ = True  # Allow legacy annotations
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
-    shelf_id = db.Column(db.Integer, db.ForeignKey('shelf.id'), nullable=True)  
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_user_book_user_id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id', name='fk_book_id'), nullable=False)
+    shelf_id = db.Column(db.Integer, db.ForeignKey('shelf.id', name='fk_shelf_id'), nullable=True)  
 
     def __repr__(self):
         return f''  #TODO: repr of userbooks

@@ -57,7 +57,7 @@ class Shelf(UserMixin, db.Model):
             user_id (int): Unique id of the user the shelf belongs to 
     """
     id = db.Column(db.Integer, primary_key)
-    name = db.Column(db.Sting(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
     user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
 
     def __repr__(self):
@@ -85,7 +85,7 @@ class Book(UserMixin, db.Model):
     author: str = db.Column(db.String(128), index=True, nullable=False)
     isbn: str = db.Column(db.String(128), index=True, nullable=False)
     publication_date: Optional[date] = db.Column(db.Date, nullable=True)
-    genre: str = db.column(db.String(100), nullable=True)
+    genre: str = db.Column(db.String(100), nullable=True)
     cover_image = db.Column(db.String(255), nullable=True)
     description = db.Column(db.Text, nullable=True)
     users = db.relationship('UserBook', backref='book', lazy=True)

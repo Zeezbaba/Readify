@@ -1,11 +1,11 @@
-from backend.app import flask_app
+from backend.app import flask_app, db
 from flask import render_template, redirect, flash, url_for
 from flask import request
 from backend.app.extensions import UserLogin
 from flask_login import current_user, login_user
 import sqlalchemy as sa
-from backend.app import db
-from backend.app.models import User
+# from backend.app import db
+from backend.app.models import User, Book
 from flask_login import logout_user
 from flask_login import login_required
 from urllib.parse import urlsplit
@@ -87,6 +87,24 @@ def user(username):
         books.append(book_details)
     
     return render_template('user.html', user=user, shelves=shelves, books=books)
+
+
+@flask_app.route('/books/genre/<genre>', methods=['GET'])
+@login_required
+def books_by_genre(genre):
+    """Displays books by genre
+    """
+    books = current_user.get_book_by_genre(genre)
+    return render_template('books_by_genre.html', genre=genre, books=books)
+
+
+@flask_app.route('/books/recent', methods=['GET'])
+@login_required
+def recent_books():
+    """Displays most recent books added to the database
+    """
+    recent_books = Book.get_recent_books()
+    return render_template('recent_books.html', books=recent_books)
 
 
 @flask_app.route('/logout')

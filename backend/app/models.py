@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from backend.app import login
 from backend.app import db
 from typing import Optional
+from datetime import date
 
 
 
@@ -48,6 +49,17 @@ class User(UserMixin, db.Model):
                 bool: True if passsword matches, else False
         """
         return check_password_hash(self.password_hash, password)
+
+    def get_book_by_genre(self, genre):
+        """Retrieve all books belonging to
+        a specified genre
+        """
+        return db.session.scalars(
+            sa.select(Book)
+            .join(UserBook)
+            .where(UserBook.user_id == self.id)
+            .where(Book.genre.ilike(f"%{genre}%"))
+        ).all()
 
 class Shelf(UserMixin, db.Model):
     """ Representation of a user's shelf
@@ -94,7 +106,19 @@ class Book(UserMixin, db.Model):
         """ String representaion of Book instance
         """
         return '<Book: {} by {}>'.format(self.title, self.author)
-    #TODO: Add relevant functions for books
+    # TODO: Add relevant functions for books
+
+    @staticmethod
+    def get_recent_books(limit=10):
+        """Retrieve the most recent books
+        added to the database
+        """
+        return db.select.scalars(
+            sa.select(Book)
+            .order_by(Book.id.desc())
+            .limit(limit)
+        ).all()
+
 
 class UserBook(UserMixin, db.Model):
     """table of the many-to-many relationship between users and books, 

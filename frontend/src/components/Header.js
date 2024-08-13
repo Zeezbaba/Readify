@@ -7,9 +7,9 @@ function Header() {
             <div className="navbar">
                 <h1>READIFY</h1>
                 <nav>
-                <a href="/">Home</a>
-                <a href="/books">Books</a>
-                <a href="/profile">Profile</a>
+              <button><a href="/">Home</a></button>
+                <button><a href="/books">Books</a></button>
+                <button><a href="/profile">Profile</a></button>
                 </nav>
             </div>
         </>

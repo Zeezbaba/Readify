@@ -1,11 +1,12 @@
 .navbar {
-    background-color: #FFFFFF;
-      color: #333333;
+    background-color: #F6E7D8;
+      color: #1C191A;
       padding: 15px 30px;
       box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      
 }
 
 .navbar h1 {
@@ -18,13 +19,14 @@
     gap: 20px;
 }
 
-.navbar a {
+.navbar nav a {
     text-decoration: none;
     color: #333333;
     font-weight: bold;
     transition: color 0.3s;
+    display: inline-block;
 }
 
 .navbar a:hover {
-    color: #0066CC;
+    color: #4FD675;
 }

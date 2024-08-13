@@ -140,7 +140,7 @@ class UserBook(UserMixin, db.Model):
     shelf_id = db.Column(db.Integer, db.ForeignKey('shelf.id', name='fk_shelf_id'), nullable=True)  
 
     def __repr__(self):
-        return f''  #TODO: repr of userbooks
+        return f'<UserBook: User {self.user_id} - Book {self.book_id}>'  #TODO: repr of userbooks
 
 
 @login.user_loader

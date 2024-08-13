@@ -10,6 +10,8 @@ from flask_login import logout_user
 from flask_login import login_required
 from urllib.parse import urlsplit
 from backend.app.extensions import RegisterUser
+from backend.app.utils import search_book_by_title
+# import requests
 
 
 @flask_app.route('/')
@@ -64,14 +66,22 @@ def user(username):
     user = db.session.scalar(sa.select(User).where(User.username == username))
     if user is None:
         flash('User not found')
-        return redirect(url_for(homePage))
+        return redirect(url_for('homePage'))
 
     # get the user's shelves
     shelves = user.shelves
 
     # Get the user's books
+    page = request.args.get('page', 1, type=int)
+    per_page = 10 # Number of books per page
+
     user_books = db.session.scalars(
-        sa.select(UserBook).where(UserBook.user_id == user.id)).all()
+        sa.select(Book.title, Book.author, Book.cover_image)
+        .join(UserBook)
+        .where(UserBook.user_id == user.id)
+        .limit(per_page)
+        .offset((page - 1) * per_page)
+    ).all()
 
     # Fetch the books associated with the user's books
     # books = [user_books.book for user_book in user_books]
@@ -86,7 +96,105 @@ def user(username):
         }
         books.append(book_details)
     
-    return render_template('user.html', user=user, shelves=shelves, books=books)
+    return render_template('user.html', user=user, shelves=shelves, books=books, page=page)
+
+
+@flask_app.route('/books/search', methods=['GET', 'POST'])
+@login_required
+def search_books():
+    """view function for book search
+    """
+    books = []
+    if request.method == 'POST':
+        title = request.form.get('title')
+        books = search_book_by_title(title)
+
+    return render_template('search_books.html', title='Search books', books=books)
+
+
+@flask_app.route('/books/add-book', methods=['GET', 'POST'])
+@login_required
+def add_book():
+    """view function for users to add books
+    into their collections
+    """
+    if request.method == 'POST':
+        title = request.form.get('title')
+        author = request.form.get('author')
+        genre = request.form.get('genre')
+        isbn = request.form.get('isbn')
+        publication_date = request.form.get('publication_date')
+        cover_image = request.form.get('cover_image')
+        description = request.form.get('description')
+
+        # validate inputs
+        if not title or not author:
+            flash('Title and Author are required!')
+            return redirect(url_for('add_book'))
+
+        book = Book(
+            title=title,
+            author=author,
+            genre=genre,
+            isbn=isbn,
+            publication_date=publication_date,
+            cover_image=cover_image,
+            description=description
+        )
+
+        db.session.add(book)
+        db.session.commit()
+
+        user_book = UserBook(user_id=current_user.id, book_id=book.id)
+        db.session.add(user_book)
+        db.session.commit()
+
+        flash('Book added successfully!')
+        return redirect(url_for('user', username=current_user.username))
+    return render_template('add_book.html', title='Add Book')
+
+
+@flask_app.route('/books/edit/<int:book_id>', methods=['GET', 'POST'])
+@login_required
+def edit_book(book_id):
+    """route for updating book details in a user's collection.
+    """
+    book = db.session.get(Book, book_id)
+    if not book:
+        flash('Book not found!')
+        return redirect(url_for('user', username=current_user.username))
+
+    if request.method == 'POST':
+        book.title = request.form.get('title')
+        book.author = request.form.get('author')
+        book.genre = request.form.get('genre')
+        book.isbn = request.form.get('isbn')
+        book.publication_date = request.form.get('publication_date')
+        book.cover_image = request.form.get('cover_image')
+        book.description = request.form.get('description')
+
+        db.session.commit()
+        flash('Book updated successfully!')
+        return redirect(url_for('user', username=current_user.username))
+    return render_template('edit_book.html', title='Edit Book', book=book)
+
+
+@flask_app.route('/books/delete/<int:book_id>', methods=['POST'])
+@login_required
+def delete_book(book_id):
+    """route to delete a book from the user's collection.
+    """
+    user_book = db.session.scalar(
+        sa.select(UserBook).where(UserBook.user_id == current_user.id, UserBook.book_id == book_id)
+    )
+
+    if user_book:
+        db.session.delete(user_book)
+        db.session.commit()
+        flash('Book deleted successfully')
+    else:
+        flash('Book not found!')
+    return redirect(url_for('user', username=current_user.username))
 
 
 @flask_app.route('/books/genre/<genre>', methods=['GET'])

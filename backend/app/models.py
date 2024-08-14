@@ -55,7 +55,7 @@ class User(UserMixin, db.Model):
         """Retrieve all books belonging to
         a specified genre
         """
-        return db.session.scalars(
+        return db.session.execute(
             sa.select(Book)
             .join(UserBook)
             .where(UserBook.user_id == self.id)
@@ -116,7 +116,7 @@ class Book(UserMixin, db.Model):
         """Retrieve the most recent books
         added to the database
         """
-        return db.select.scalars(
+        return db.select.execute(
             sa.select(Book)
             .order_by(Book.id.desc())
             .limit(limit)

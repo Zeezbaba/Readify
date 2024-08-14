@@ -29,7 +29,7 @@ def search_book_by_title(query):
     # Add a cache-busting parameter
     search_url += f"&_={int(time.time() * 1000)}"
     print("Constructed Search URL:", search_url)
-    print("Constructed Search URL:", search_url)
+    # print("Constructed Search URL:", search_url)
 
     
     response = requests.get(search_url)

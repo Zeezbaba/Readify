@@ -107,8 +107,19 @@ def search_books():
     """
     books = []
     if request.method == 'POST':
-        title = request.form.get('title')
-        books = search_book_by_title(title)
+        search_term = request.form.get('search_term')
+        print(search_term)
+
+        query = {}
+        if search_term:
+            if ' by ' in search_term.lower():
+                title, author = map(str.strip, search_term.lower().split(' by ', 1))
+                query['title'] = title
+                query['author'] = author
+            else:
+                query['general'] = search_term
+        print("Query Dictionary in route:", query)
+        books = search_book_by_title(query)
 
     return render_template('search_books.html', title='Search books', books=books)
 

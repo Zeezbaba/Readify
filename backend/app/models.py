@@ -88,7 +88,7 @@ class Book(UserMixin, db.Model):
             title (str): Name of  book
             author (str): Name of book's author
             genre (str): The genre the book belongs to
-            publication_date (date): Date the book was published
+            publication_date (date): Initial date the book was published
             isbn (str): ISBN of the book. Unique
             cover_image (str): URL of book's cover image
             description (str): Description / synopsis of the book

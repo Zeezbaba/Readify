@@ -5,7 +5,7 @@ from backend.app.extensions import UserLogin
 from flask_login import current_user, login_user
 import sqlalchemy as sa
 # from backend.app import db
-from backend.app.models import User, Book
+from backend.app.models import User, Book, Shelf
 from flask_login import logout_user
 from flask_login import login_required
 from urllib.parse import urlsplit

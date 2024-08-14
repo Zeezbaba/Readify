@@ -1,0 +1,25 @@
+.footer {
+    background-color: #1C191A;
+    color: #666666;
+    padding: 20px 30px;
+    border-top: 1px solid #CCCCCC;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer nav a {
+    color: #F6E7D8;
+    text-decoration: none;
+    margin-right: 20px;
+}
+
+.footer nav a:last-child {
+    margin-right: 0;
+}
+
+.footer p {
+    font-size: 14px;
+    color: #F6E7D8;
+    font-family: garalda, serif;
+}

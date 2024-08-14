@@ -1,16 +1,29 @@
 import React from "react";
-//import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Header from "../components/Header";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Footer from "../components/Footer";
+import Home from "../Pages/Home";
+import Navbar from "../components/Navbar";
 import "./App.css"
 
-function App() {
+
+const App = () => {
   return (
-    <React.Fragment>
-      <div className="App">
-        <Header />
+    <Router>
+      <div className="app">
+        <header>
+          <Navbar />
+        </header>
+
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+          </Routes>
+        </main>
+
+        <Footer />
       </div>
-    </React.Fragment>
+    </Router>
   );
-}
+};
 
 export default App;

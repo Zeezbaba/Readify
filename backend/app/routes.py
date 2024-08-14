@@ -125,13 +125,14 @@ def user(username):
     return jsonify({ 'user': user.username, 'shelves': shelves, 'books': books, 'page': page})
 
 
-@flask_app.route('/api/shelves', methods=['GET'])
-def list_shelves():
-    """API endpoint to list all shelves of a current user
+@flask_app.route('/api/user/shelves', methods=['GET'])
+def get_user_shelves():
+    """API endpoint to retrieves shelves of a current user
     """
-    shelves = db.session.scalars(
-        sa.select(Shelf).where(Shelf.user_id == current_user.id)
-    ).all()
+    shelves = current_user.shelves
+    # shelves = db.session.scalars(
+    #     sa.select(Shelf).where(Shelf.user_id == current_user.id)
+    # ).all()
 
     shelf_list = [{'id': shelf.id, 'name': shelf.name} for shelf in shelves]
     return jsonify({ 'shelves': shelf_list }), 200
@@ -207,20 +208,26 @@ def add_book():
         # flash('Title and Author are required!')
         return jsonify({ 'error': 'Title and Author are required!' }), 400
 
-    book = Book(
-        title=title,
-        author=author,
-        genre=genre,
-        isbn=isbn,
-        publication_date=publication_date,
-        cover_image=cover_image,
-        description=description
-    )
+    # check if book already exists
+    book = db.session.scalar(sa.select(Book).where(Book.isbn == isbn))
 
-    db.session.add(book)
-    db.session.commit()
+    if not book:
+        # if book doesnt exist, create it
+        book = Book(
+            title=title,
+            author=author,
+            genre=genre,
+            isbn=isbn,
+            publication_date=publication_date,
+            cover_image=cover_image,
+            description=description
+        )
 
-    user_book = UserBook(user_id=current_user.id, book_id=book.id)
+        db.session.add(book)
+        db.session.commit()
+
+    # add the book to user selected shelf
+    user_book = UserBook(user_id=current_user.id, book_id=book.id, shelf_id=shelf_id)
     db.session.add(user_book)
     db.session.commit()
 

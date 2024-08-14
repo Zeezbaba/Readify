@@ -81,6 +81,15 @@ class Shelf(UserMixin, db.Model):
 
         #TODO: Add relevant functions (add shelf etc)
 
+    def create_shelf(self, name):
+        """Creates a new shelf for the user
+        """
+        new_shelf = Shelf(name=name, user_id=self.id)
+        db.session.add(new_shelf)
+        db.session.commit()
+        return new_shelf
+        
+
 class Book(UserMixin, db.Model):
     """ A book in the application
     Attributes:

@@ -125,7 +125,45 @@ def user(username):
     return jsonify({ 'user': user.username, 'shelves': shelves, 'books': books, 'page': page})
 
 
-@flask_app.route('api/books/search', methods=['POST'])
+@flask_app.route('/api/shelves', methods=['GET'])
+def list_shelves():
+    """API endpoint to list all shelves of a current user
+    """
+    shelves = db.session.scalars(
+        sa.select(Shelf).where(Shelf.user_id == current_user.id)
+    ).all()
+
+    shelf_list = [{'id': shelf.id, 'name': shelf.name} for shelf in shelves]
+    return jsonify({ 'shelves': shelf_list }), 200
+
+
+@flask_app.route('/api/shelves/create', methods=['POST'])
+def create_shelf():
+    """API endpoint to create a new shelf for the user
+    """
+    data = request.json
+    shelf_name = data.get('name')
+
+    # validate shelf name
+    if not shelf_name:
+        return jsonify({ 'error': 'Shelf name is required' }), 400
+
+    # check if a shelf name already exists for the user
+    existing_shelf = db.session.scalar(
+        sa.select(Shelf).where(Shelf.user_id == current_user.id, Shelf.name == shelf_name))
+
+    if existing_shelf:
+        return jsonify({ 'error': 'Shelf with this name already exists' })
+
+    # create a new shelf
+    new_shelf = Shelf(name=shelf_name, user_id=current_user.id)
+    db.session.add(new_shelf)
+    db.session.commit()
+
+    return jsonify({ 'message': 'Shelf created successfully', 'shelf_id': new_shelf.id }), 201
+
+
+@flask_app.route('api/books/search', methods=['GET', 'POST'])
 @login_required
 def search_books():
     """API endpoint for book search

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Footer from "../components/Footer";
 import Home from "../Pages/Home";
 import Navbar from "../components/Navbar";
+import AddItems from "../Pages/AddItems";
 import "./App.css"
 
 
@@ -17,6 +18,7 @@ const App = () => {
         <main>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/add-items" element={<AddItems />} />
           </Routes>
         </main>
 

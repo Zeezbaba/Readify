@@ -37,9 +37,9 @@ def search_book_by_title(query):
             if work_id:
                 book['description'] = get_description(work_id)
             # get genre
-            subject_list = res.json().get('subjects')
+            subject_list = book.get('subjects')
             if subject_list:
-                book['genre'] = get_genre(subject)
+                book['genre'] = get_genre(subject_list)
                     
         print(books)
         return books
@@ -84,14 +84,14 @@ def get_genre(subject_list):
     ]
     for item in subject_list:
             for genre in book_genres:
-                if genre is item:
+                if genre == item:
                     return genre
     return 'N/A'
 
 def get_description(work_id):
     """ gets a book description /synopsis
     from the Open Library Works API"""
-    res = requests(f"https://openlibrary.org{work_id}.json")
+    res = requests.get(f"https://openlibrary.org{work_id}.json")
     if res.status_code == 200:
         book_description = res.json().get('description').get('value', 'N/A')
     return book_description

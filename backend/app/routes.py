@@ -1,8 +1,9 @@
 from backend.app import flask_app, db
-from flask import abort
+from flask import render_template, redirect, url_for, abort
 from flask import Flask, request, jsonify, send_from_directory
 from backend.app.extensions import UserLogin
 from flask_login import current_user, login_user
+from werkzeug.security import generate_password_hash
 import sqlalchemy as sa
 # from backend.app import db
 from backend.app.models import User, Book, Shelf, UserBook
@@ -54,9 +55,9 @@ def login():
             # return redirect (url_for('login'))
         login_user(user, remember=form.remember_me.data)
         return jsonify({ 'message': 'Login successful'})
-        next_page = request.args.get('next')
-        if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('homePage')
+        # next_page = request.args.get('next')
+        # if not next_page or urlsplit(next_page).netloc != '':
+        #     next_page = url_for('homePage')
         # return redirect (next_page)
     return jsonify({ 'error': 'Invalid form submission' }), 400
     # return render_template('login.html', title='Sign In', form=form)
@@ -81,6 +82,22 @@ def register():
         # return redirect(url_for('login'))
     return jsonify({ 'error': 'Invalid form submission' }), 400
     # return render_template('register.html', title='Register', form=form)
+
+
+@flask_app.route('/api/user/update-security-question', methods=['POST'])
+@login_required
+def update_security_question():
+    """API endpoint for user to update security question
+    that will be required for password recovery
+    """
+    data = request.json
+    user = current_user
+
+    user.security_question = data['question']
+    user.security_answer = generate_password_hash(data['answer'])
+
+    db.session.commit()
+    return jsonify({ 'message': 'Security question updated successfully' }), 200
 
 
 @flask_app.route('/api/user/<username>', methods=['GET'], strict_slashes=False)
@@ -126,7 +143,37 @@ def user(username):
     return jsonify({ 'user': user.username, 'shelves': shelves, 'books': books, 'page': page})
 
 
+@flask_app.route('/api/user/security-question/<username>', methods=['GET'])
+def get_security_question(username):
+    """Gets the user security question
+    """
+    user = db.session.scalar(sa.select(User).where(User.username == username))
+    if not user:
+        return jsonify({ 'error': 'User not found' }), 404
+
+    return jsonify({ 'question': user.security_question })
+
+
+@flask_app.route('/api/user/recover-password', methods=['POST'])
+def recover_password():
+    """password recovery
+    """
+    data = request.json
+    user = db.session.scalar(sa.select(User).where(User.username == data['username']))
+    if not user:
+        return jsonify({ 'error': 'User not found' }), 404
+    
+    if not user.check_security_answer(data['answer']):
+        return jsonify({ 'error': 'Security answer does not match' }), 401
+    
+    user.set_password(data['newPassword'])
+    db.session.commit()
+
+    return jsonify({ 'message': 'Password reset successfully' }), 200
+
+
 @flask_app.route('/api/user/shelves', methods=['GET'], strict_slashes=False)
+@login_required
 def get_user_shelves():
     """API endpoint to retrieves shelves of a current user
     """
@@ -140,6 +187,7 @@ def get_user_shelves():
 
 
 @flask_app.route('/api/shelves/create', methods=['POST'], strict_slashes=False)
+@login_required
 def create_shelf():
     """API endpoint to create a new shelf for the user
     """
@@ -196,13 +244,13 @@ def add_book():
     """
     # if request.method == 'POST':
     data = request.json
-    title = request.form.get('title')
-    author = request.form.get('author')
-    genre = request.form.get('genre')
-    isbn = request.form.get('isbn')
-    publication_date = request.form.get('publication_date')
-    cover_image = request.form.get('cover_image')
-    description = request.form.get('description')
+    title = data.get('title')
+    author = data.get('author')
+    genre = data.get('genre')
+    isbn = data.get('isbn')
+    publication_date = data.get('publication_date')
+    cover_image = data.get('cover_image')
+    description = data.get('description')
     shelf_id = data.get('shef_id')
 
     # validate inputs
@@ -252,13 +300,13 @@ def edit_book(book_id):
 
     # if request.method == 'POST':
     data = request.json
-    book.title = request.form.get('title')
-    book.author = request.form.get('author')
-    book.genre = request.form.get('genre')
-    book.isbn = request.form.get('isbn')
-    book.publication_date = request.form.get('publication_date')
-    book.cover_image = request.form.get('cover_image')
-    book.description = request.form.get('description')
+    book.title = data.get('title')
+    book.author = data.get('author')
+    book.genre = data.get('genre')
+    book.isbn = data.get('isbn')
+    book.publication_date = data.get('publication_date')
+    book.cover_image = data.get('cover_image')
+    book.description = data.get('description')
 
     db.session.commit()
     # flash('Book updated successfully!')
@@ -286,7 +334,7 @@ def delete_book(book_id):
         # flash('Book not found!')
         # return redirect(url_for('user', username=current_user.username))
 
-@flask_app.route('/api/books/view/<int: book_id', methods=['GET'], strict_slashes=False)
+@flask_app.route('/api/books/view/<int:book_id>', methods=['GET'], strict_slashes=False)
 @login_required
 def view_single_book(book_id):
     """API endpoint for to view a  book on a single page"""     
@@ -299,17 +347,19 @@ def view_single_book(book_id):
     if user_book and book:
         # create json payload for display
         book_view = {
-            "user_id": user_book.user_id
+            "user_id": user_book.user_id,
             "title": book.title,
             "shelf": user_book.shelf_id, 
             "author": book.author, 
             "publication date": book.publication_date, 
             "genre": book.genre, 
-            "isbn": book.isbm, 
+            "isbn": book.isbn, 
             "cover image": book.cover_image, 
             "description": book.description, 
         }
-    return jsonify(book_view)
+        return jsonify(book_view)
+    else:
+        return jsonify({ 'error': 'Book not found' }), 404
     
 
 @flask_app.route('/api/books/genre/<genre>', methods=['GET'], strict_slashes=False)

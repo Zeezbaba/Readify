@@ -84,6 +84,22 @@ def register():
     # return render_template('register.html', title='Register', form=form)
 
 
+@flask_app.route('/api/user/forgot-password', methods=['POST'])
+def forgot_password():
+    """Initiates the password recovery process
+    """
+    data = request.json
+    username = data.get('username')
+
+    # Fetch the user by username
+    user = db.session.scalar(sa.select(User).where(User.username == username))
+    if not user:
+        return jsonify({ 'error': 'User not found' }), 404
+    
+    # Provide the security question for the user
+    return jsonify({ 'question': user.security_question}), 200
+
+
 @flask_app.route('/api/user/update-security-question', methods=['POST'])
 @login_required
 def update_security_question():

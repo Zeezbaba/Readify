@@ -31,7 +31,7 @@ def static_proxy(path):
 
 
 # @flask_app.route('/')
-@flask_app.route('api/home', methods=['GET'])
+@flask_app.route('/api/home', methods=['GET'], strict_slashes=False)
 @login_required
 def homePage():
     # codes
@@ -39,7 +39,7 @@ def homePage():
     return jsonify({ 'message': 'Welcome to Readify'})
 
 
-@flask_app.route('api/login', methods=['GET', 'POST'])
+@flask_app.route('/api/login', methods=['GET', 'POST'], strict_slashes=False)
 def login():
     if current_user.is_authenticated:
         return jsonify({ 'message': 'Already logged in' }), 200
@@ -63,7 +63,7 @@ def login():
 #TODO: ALL 'render_template' calls will need to be changed to 'send_from_directory' to integrate with REACT
 
 
-@flask_app.route('api/register', methods=['GET', 'POST'])
+@flask_app.route('/api/register', methods=['GET', 'POST'], strict_slashes=False)
 def register():
     """API endpoint for new user registration
     """
@@ -83,7 +83,7 @@ def register():
     # return render_template('register.html', title='Register', form=form)
 
 
-@flask_app.route('api/user/<username>', methods=['GET'])
+@flask_app.route('/api/user/<username>', methods=['GET'], strict_slashes=False)
 @login_required
 def user(username):
     """User's dashboard
@@ -126,7 +126,7 @@ def user(username):
     return jsonify({ 'user': user.username, 'shelves': shelves, 'books': books, 'page': page})
 
 
-@flask_app.route('/api/user/shelves', methods=['GET'])
+@flask_app.route('/api/user/shelves', methods=['GET'], strict_slashes=False)
 def get_user_shelves():
     """API endpoint to retrieves shelves of a current user
     """
@@ -139,7 +139,7 @@ def get_user_shelves():
     return jsonify({ 'shelves': shelf_list }), 200
 
 
-@flask_app.route('/api/shelves/create', methods=['POST'])
+@flask_app.route('/api/shelves/create', methods=['POST'], strict_slashes=False)
 def create_shelf():
     """API endpoint to create a new shelf for the user
     """
@@ -165,7 +165,7 @@ def create_shelf():
     return jsonify({ 'message': 'Shelf created successfully', 'shelf_id': new_shelf.id }), 201
 
 
-@flask_app.route('api/books/search', methods=['GET', 'POST'])
+@flask_app.route('/api/books/search', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def search_books():
     """API endpoint for book search
@@ -188,7 +188,7 @@ def search_books():
     return jsonify(books)
 
 
-@flask_app.route('api/books/add-book', methods=['POST'])
+@flask_app.route('/api/books/add-book', methods=['POST'], strict_slashes=False)
 @login_required
 def add_book():
     """API endpoint for users to add books
@@ -239,7 +239,7 @@ def add_book():
     return jsonify({ 'message': 'Book added successfully!' })
 
 
-@flask_app.route('api/books/edit/<int:book_id>', methods=['PUT'])
+@flask_app.route('/api/books/edit/<int:book_id>', methods=['PUT'], strict_slashes=False)
 @login_required
 def edit_book(book_id):
     """API endpoint for updating book details in a user's collection.
@@ -267,7 +267,7 @@ def edit_book(book_id):
     return jsonify({ 'message': 'Book updated successfully!'})
 
 
-@flask_app.route('api/books/delete/<int:book_id>', methods=['DELETE'])
+@flask_app.route('/api/books/delete/<int:book_id>', methods=['DELETE'], strict_slashes=False)
 @login_required
 def delete_book(book_id):
     """API endpoint to delete a book from the user's collection.
@@ -286,8 +286,33 @@ def delete_book(book_id):
         # flash('Book not found!')
         # return redirect(url_for('user', username=current_user.username))
 
+@flask_app.route('/api/books/view/<int: book_id', methods=['GET'], strict_slashes=False)
+@login_required
+def view_single_book(book_id):
+    """API endpoint for to view a  book on a single page"""     
+    user_book, book = db.session.scalar(
+        sa.select(UserBook, Book)
+        .join(Book, UserBook.book_id == Book.id)
+        .where(UserBook.user_id == current_user.id)
+    )
 
-@flask_app.route('api/books/genre/<genre>', methods=['GET'])
+    if user_book and book:
+        # create json payload for display
+        book_view = {
+            "user_id": user_book.user_id
+            "title": book.title,
+            "shelf": user_book.shelf_id, 
+            "author": book.author, 
+            "publication date": book.publication_date, 
+            "genre": book.genre, 
+            "isbn": book.isbm, 
+            "cover image": book.cover_image, 
+            "description": book.description, 
+        }
+    return jsonify(book_view)
+    
+
+@flask_app.route('/api/books/genre/<genre>', methods=['GET'], strict_slashes=False)
 @login_required
 def books_by_genre(genre):
     """Displays books by genre
@@ -297,7 +322,7 @@ def books_by_genre(genre):
     # return render_template('books_by_genre.html', genre=genre, books=books)
 
 
-@flask_app.route('api/books/recent', methods=['GET'])
+@flask_app.route('/api/books/recent', methods=['GET'], strict_slashes=False)
 @login_required
 def recent_books():
     """Displays most recent books added to the database
@@ -307,7 +332,7 @@ def recent_books():
     # return render_template('recent_books.html', books=recent_books)
 
 
-@flask_app.route('api/logout', methods=['POST'])
+@flask_app.route('/api/logout', methods=['POST'], strict_slashes=False)
 def logout():
     logout_user()
     #return redirect (url_for('homePage'))

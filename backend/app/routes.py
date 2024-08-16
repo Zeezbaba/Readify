@@ -1,16 +1,17 @@
 from backend.app import flask_app, db
-from flask import render_template, redirect, flash, url_for
+from flask import abort
 from flask import Flask, request, jsonify, send_from_directory
 from backend.app.extensions import UserLogin
 from flask_login import current_user, login_user
 import sqlalchemy as sa
 # from backend.app import db
-from backend.app.models import User, Book, Shelf
+from backend.app.models import User, Book, Shelf, UserBook
 from flask_login import logout_user
 from flask_login import login_required
 from urllib.parse import urlsplit
 from backend.app.extensions import RegisterUser
 from backend.app.utils import search_book_by_title
+from flask_cors import CORS
 # import requests
 
 CORS(flask_app)
@@ -23,7 +24,7 @@ def serve():
 
 
 @flask_app.route('/<path:path>')
-def static_proxy():
+def static_proxy(path):
     """This route allows React Router to handle client-side routing
     """
     return send_from_directory(flask_app.static, path)
@@ -191,7 +192,7 @@ def search_books():
 @login_required
 def add_book():
     """API endpoint for users to add books
-    into their collections
+    into their shelve
     """
     # if request.method == 'POST':
     data = request.json
@@ -202,6 +203,7 @@ def add_book():
     publication_date = request.form.get('publication_date')
     cover_image = request.form.get('cover_image')
     description = request.form.get('description')
+    shelf_id = data.get('shef_id')
 
     # validate inputs
     if not title or not author:

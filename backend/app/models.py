@@ -25,9 +25,9 @@ class User(UserMixin, db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     username: str = db.Column(db.String(64), index=True, unique=True)
     email: str = db.Column(db.String(120), index=True, unique=True)
-    password_hash: str = db.Column(db.String(256), nullable=True)
-    security_question: str = db.Column(db.String(256))
-    security_answer: str = db.Column(db.String(256))
+    password_hash: str = db.Column(db.String(256), nullable=False)
+    security_question: str = db.Column(db.String(256), nullable=False)
+    security_answer: str = db.Column(db.String(256), nullable=False)
 
     shelves: list['Shelf'] = db.relationship('Shelf', backref='user', lazy=True)
     books: list['UserBook'] = db.relationship('UserBook', backref='user', lazy=True)

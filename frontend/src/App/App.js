@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import Home from "../Pages/Home";
 import Navbar from "../components/Navbar";
 import AddItems from "../Pages/AddItems";
-import Profile from "../components/Profiles";
+import Profile from "../Pages/Profile";
 import "./App.css"
 
 

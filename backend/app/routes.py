@@ -119,8 +119,6 @@ def forgot_password():
     return jsonify({ 'question': user.security_question}), 200
 
 
-
-
 @flask_app.route('/api/user/<username>', methods=['GET'], strict_slashes=False)
 @login_required
 def user(username):
@@ -133,15 +131,15 @@ def user(username):
         abort(404, description="User not found")
 
     # get the user's shelves
-    shelves = user.shelves
+    shelves = [ shelf.to_dict() for shelf in current_user.shelves]
 
     # Get the user's books
     page = request.args.get('page', 1, type=int)
     per_page = 10 # Number of books per page
 
     user_books = db.session.scalars(
-        sa.select(Book.title, Book.author, Book.cover_image)
-        .join(UserBook)
+        sa.select(UserBook)
+        .join(Book)
         .where(UserBook.user_id == user.id)
         .limit(per_page)
         .offset((page - 1) * per_page)
@@ -286,7 +284,7 @@ def add_book():
     publication_date = data.get('publication_date')
     cover_image = data.get('cover_image')
     description = data.get('description')
-    shelf_id = data.get('shef_id')
+    shelf_id = data.get('shelf_id')
 
     # validate inputs
     if not title or not author:

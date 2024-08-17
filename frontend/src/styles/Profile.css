@@ -52,3 +52,151 @@
   color: #666;
   line-height: 1.6;
 }
+
+/* Dashboard Section */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f8e6b4;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  margin: auto;
+}
+
+.dashboard-summary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  background-color: #f9d66e;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 45%;
+}
+
+.summary-card h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.summary-card p {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.dashboard-chart {
+  background-color: #f9d66e;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.dashboard-chart h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Update Section */
+.update-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.update-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.update-section form {
+  display: flex;
+  flex-direction: column;
+}
+
+.update-section textarea,
+.update-section input[type="password"],
+.update-section input[type="file"] {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.update-section button {
+  padding: 10px 20px;
+  background-color: #FBD47C;
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.update-section button:hover {
+  background-color: #555;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f8e6b4;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.dashboard-summary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  background-color:#FBD47C;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 40%;
+}
+
+.summary-card h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.summary-card p {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.dashboard-chart {
+  background-color: #FBD47C;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.dashboard-chart h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.chart {
+  height: 200px;
+  background-color: #6CE5E8;
+  border-radius: 10px;
+}

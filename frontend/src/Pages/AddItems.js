@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fetchBooks, addBook } from '../services/api';
+import { searchBooks, addBook } from '../services/api';
 import '../styles/AddItems.css';
 
 const AddItems = () => {
@@ -10,7 +10,7 @@ const AddItems = () => {
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        const results = await fetchBooks(query);
+        const results = await searchBooks(query);
         setBooks(results);
     };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchBooks } from '../services/api';
+import { searchBooks } from '../services/api';
 import '../styles/Home.css';
 
 const HomePage = () => {
@@ -7,7 +7,7 @@ const HomePage = () => {
 
   useEffect(() => {
       // Fetch the books when the component mounts
-      fetchBooks('bestsellers')
+      searchBooks('bestsellers')
           .then(data => setBooks(data))
           .catch(error => console.error('Error fetching books:', error));
   }, []);

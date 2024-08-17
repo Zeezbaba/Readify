@@ -59,6 +59,9 @@
         flex-direction: column;
         width: 100%;
     }
+    .nav-links:hover {
+        color: #007bff; 
+      }
 
     .navbar-links li {
         margin-left: 0;

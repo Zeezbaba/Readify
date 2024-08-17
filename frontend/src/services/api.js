@@ -1,44 +1,44 @@
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+import axios from 'axios';
 
-export const fetchBooks = async (query) => {
+// Function to search for books
+export const searchBooks = async (searchTerm) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/books/search?title=${query}`, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        const response = await axios.get('/api/books/search', {
+            params: { search_term: searchTerm }
         });
-        const data = await response.json();
-
-        return data.map(book => ({
-            title: book.title,
-            author: book.author_name ? book.author_name.join(', ') : 'Unknown Author',
-            coverUrl: book.cover_image_url,
-        }));
+        return response.data;
     } catch (error) {
-        console.error('Error fetching books:', error);
-        return [];
+        console.error('Error searching for books:', error);
+        if (error.response && error.response.data) {
+            throw new Error(error.response.data.error);
+        } else {
+            throw new Error('An unexpected error occurred.');
+        }
     }
 };
 
 //addbooks
-export const addBook = async (book) => {
+export const addBook = async (bookData) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/addbook`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(book),
-        });
-
-        const data = await response.json();
-        if (response.status === 201) {
-            return { success: true, message: data.message };
-        } else {
-            return { success: false, message: 'Failed to add book' };
-        }
+        const response = await axios.post('/api/books/add-book', bookData);
+        return response.data;
     } catch (error) {
         console.error('Error adding book:', error);
-        return { success: false, message: 'Error adding book' };
+        if (error.response && error.response.data) {
+            throw new Error(error.response.data.error);
+        } else {
+            throw new Error('An unexpected error occurred.');
+        }
+    }
+};
+
+
+export const fetchUserProfile = async (username) => {
+    try {
+        const response = await axios.get(`/api/user/${username}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        throw error;
     }
 };

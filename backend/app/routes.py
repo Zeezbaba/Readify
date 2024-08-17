@@ -40,20 +40,26 @@ def homePage():
     return jsonify({ 'message': 'Welcome to Readify'})
 
 
-@flask_app.route('/api/login', methods=['GET', 'POST'], strict_slashes=False)
+@flask_app.route('/api/login', methods=['POST'], strict_slashes=False)
 def login():
     if current_user.is_authenticated:
         return jsonify({ 'message': 'Already logged in' }), 200
-        # return redirect(url_for('homePage'))
-    form = UserLogin()
-    if form.validate_on_submit():
+
+    # get json input from frontend form
+    form_data = request.get_json()
+    print(form_data)
+    if form_data:
+        # check if user exists then verify password
+        username = form_data.get("username")
+        password = form_data.get("password")
+        remember_me =form_data.get("remember me")
+
         user = db.session.scalar(
-            sa.select(User).where(User.username == form.username.data))
-        if user is None or not user.check_password(form.password.data):
-            # flash('Invalid username or password')
+            sa.select(User).where(User.username == username))
+        if user is None or not user.check_password(password):
             return jsonify({ 'error': 'Invalid username or password'}), 401
-            # return redirect (url_for('login'))
-        login_user(user, remember=form.remember_me.data)
+
+        login_user(user, remember=remember_me)
         return jsonify({ 'message': 'Login successful'})
         # next_page = request.args.get('next')
         # if not next_page or urlsplit(next_page).netloc != '':
@@ -64,24 +70,37 @@ def login():
 #TODO: ALL 'render_template' calls will need to be changed to 'send_from_directory' to integrate with REACT
 
 
-@flask_app.route('/api/register', methods=['GET', 'POST'], strict_slashes=False)
+@flask_app.route('/api/register', methods=['POST'], strict_slashes=False)
 def register():
     """API endpoint for new user registration
     """
     if current_user.is_authenticated:
-        # return redirect(url_for('homePage'))
         return jsonify({ 'message': 'Already logged in' }), 200
-    form = RegisterUser()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
+    
+    # get json input from frontend form
+    form = request.get_json()
+    if form:
+        username = form.get('username')
+        email = form.get('email')
+        password = form.get('password')
+        security_question = form.get('security question')
+        security_answer = form.get('security answer')
+
+        # validate input
+        if not username or not email or not password:
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        if db.session.scalar(sa.select(User).where(User.username == username)):
+            return jsonify({ 'error': 'User already exists!' }), 409
+        
+        # create user and set password
+        user = User(username=username, email=email, security_question=security_question, security_answer=security_answer)
+        user.set_password(password)
         db.session.add(user)
         db.session.commit()
-        return jsonify({ 'message': 'Registration Successful!'})
-        # flash('Congratulations, you have joined Readify!')
-        # return redirect(url_for('login'))
-    return jsonify({ 'error': 'Invalid form submission' }), 400
-    # return render_template('register.html', title='Register', form=form)
+        return jsonify({ 'message': 'Registration Successful!'}), 201
+    
+    return jsonify({ 'error': 'No input provided' }), 400
 
 
 @flask_app.route('/api/user/forgot-password', methods=['POST'])
@@ -100,20 +119,6 @@ def forgot_password():
     return jsonify({ 'question': user.security_question}), 200
 
 
-@flask_app.route('/api/user/update-security-question', methods=['POST'])
-@login_required
-def update_security_question():
-    """API endpoint for user to update security question
-    that will be required for password recovery
-    """
-    data = request.json
-    user = current_user
-
-    user.security_question = data['question']
-    user.security_answer = generate_password_hash(data['answer'])
-
-    db.session.commit()
-    return jsonify({ 'message': 'Security question updated successfully' }), 200
 
 
 @flask_app.route('/api/user/<username>', methods=['GET'], strict_slashes=False)
@@ -158,6 +163,20 @@ def user(username):
     # return render_template('user.html', user=user, shelves=shelves, books=books, page=page)
     return jsonify({ 'user': user.username, 'shelves': shelves, 'books': books, 'page': page})
 
+@flask_app.route('/api/user/update-security-question', methods=['POST'])
+@login_required
+def update_security_question():
+    """API endpoint for user to update security question
+    that will be required for password recovery
+    """
+    data = request.json
+    user = current_user
+
+    user.security_question = data['question']
+    user.security_answer = generate_password_hash(data['answer'])
+
+    db.session.commit()
+    return jsonify({ 'message': 'Security question updated successfully' }), 200
 
 @flask_app.route('/api/user/security-question/<username>', methods=['GET'])
 def get_security_question(username):

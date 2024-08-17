@@ -96,7 +96,6 @@ class Shelf(UserMixin, db.Model):
         db.session.commit()
         return new_shelf
         
-
 class Book(UserMixin, db.Model):
     """ A book in the application
     Attributes:
@@ -115,7 +114,7 @@ class Book(UserMixin, db.Model):
     title: str = db.Column(db.String(128), index=True, nullable=False)
     author: str = db.Column(db.String(128), index=True, nullable=False)
     isbn: str = db.Column(db.String(128), index=True, nullable=False)
-    publication_date: Optional[date] = db.Column(db.Date, nullable=True)
+    publication_date: Optional[date] = db.Column(db.Integer, nullable=True)
     genre: str = db.Column(db.String(100), nullable=True)
     cover_image = db.Column(db.String(255), nullable=True)
     description = db.Column(db.Text, nullable=True)

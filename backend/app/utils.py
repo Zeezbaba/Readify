@@ -41,7 +41,6 @@ def search_book_by_title(query):
             if subject_list:
                 book['genre'] = get_genre(subject_list)
                     
-        print(books)
         return books
     else:
         return []
@@ -93,5 +92,8 @@ def get_description(work_id):
     from the Open Library Works API"""
     res = requests.get(f"https://openlibrary.org{work_id}.json")
     if res.status_code == 200:
-        book_description = res.json().get('description').get('value', 'N/A')
+        book_description = res.json().get('description')
+        if isinstance(book_description, dict):
+            book_description.get('value', 'N/A')
+        print(book_description)
     return book_description

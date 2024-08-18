@@ -39,7 +39,7 @@ def homePage():
     # return render_template('homePage.html', title='Home')
     return jsonify({ 'message': 'Welcome to Readify'})
 
-
+#[x]: Tested
 @flask_app.route('/api/login', methods=['POST'], strict_slashes=False)
 def login():
     if current_user.is_authenticated:
@@ -69,7 +69,7 @@ def login():
     # return render_template('login.html', title='Sign In', form=form)
 #TODO: ALL 'render_template' calls will need to be changed to 'send_from_directory' to integrate with REACT
 
-
+#[x]: Tested
 @flask_app.route('/api/register', methods=['POST'], strict_slashes=False)
 def register():
     """API endpoint for new user registration
@@ -118,7 +118,7 @@ def forgot_password():
     # Provide the security question for the user
     return jsonify({ 'question': user.security_question}), 200
 
-
+#[x]: Tested 
 @flask_app.route('/api/user/<username>', methods=['GET'], strict_slashes=False)
 @login_required
 def user(username):
@@ -204,7 +204,7 @@ def recover_password():
 
     return jsonify({ 'message': 'Password reset successfully' }), 200
 
-
+#[x] Tested
 @flask_app.route('/api/user/shelves', methods=['GET'], strict_slashes=False)
 @login_required
 def get_user_shelves():
@@ -218,7 +218,7 @@ def get_user_shelves():
     shelf_list = [{'id': shelf.id, 'name': shelf.name} for shelf in shelves]
     return jsonify({ 'shelves': shelf_list }), 200
 
-
+#[x]: Tested
 @flask_app.route('/api/shelves/create', methods=['POST'], strict_slashes=False)
 @login_required
 def create_shelf():
@@ -245,30 +245,30 @@ def create_shelf():
 
     return jsonify({ 'message': 'Shelf created successfully', 'shelf_id': new_shelf.id }), 201
 
-
-@flask_app.route('/api/books/search', methods=['GET', 'POST'], strict_slashes=False)
+#[x]: Tested
+@flask_app.route('/api/books/search', methods=['POST'], strict_slashes=False)
 @login_required
 def search_books():
     """API endpoint for book search
     """
     # books = []
     # if request.method == 'POST':
-    search_term = request.json.get('search_term', '')
+    search_term = request.json.get('search term', '')
     # print(search_term)
 
     query = {}
     if search_term:
-        if ' by ' in search_term.lower():
+        if 'by' in search_term.lower():
             title, author = map(str.strip, search_term.lower().split(' by ', 1))
             query['title'] = title
             query['author'] = author
         else:
             query['general'] = search_term
-    # print("Query Dictionary in route:", query)
+    print("Query Dictionary in route.py:", query)
     books = search_book_by_title(query)
     return jsonify(books)
 
-
+#[x]: Tested
 @flask_app.route('/api/books/add-book', methods=['POST'], strict_slashes=False)
 @login_required
 def add_book():

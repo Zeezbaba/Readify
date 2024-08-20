@@ -3,6 +3,9 @@ import '../styles/Profile.css';
 import defaultProfilePic from '../assets/profile-pic.jpg';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -67,7 +70,8 @@ const options = {
   };
 
   return (
-    <div className="profile-container">
+    <div>
+      <Navbar />
       <div className="profile-left">
         <img
           src={uploadedProfilePic || defaultProfilePic}
@@ -152,6 +156,7 @@ const options = {
         </div>
 
       </div>
+      <Footer />
     </div>
   );
 };

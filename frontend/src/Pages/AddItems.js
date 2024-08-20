@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { searchBooks, addBook } from '../services/api';
 import '../styles/AddItems.css';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const AddItems = () => {
     const [query, setQuery] = useState('');
@@ -40,6 +42,7 @@ const AddItems = () => {
 
     return (
         <div className="additems-page">
+            <Navbar />
             <h1>Add Items</h1>
             <form onSubmit={handleSearch}>
             <div>
@@ -81,6 +84,7 @@ const AddItems = () => {
             )}
 
             {message && <p>{message}</p>}
+            <Footer />
         </div>
     );
 }

@@ -1,0 +1,9 @@
+.booklist-page {
+    text-align: center;
+    padding: 20px;
+}
+
+.booklist-page h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}

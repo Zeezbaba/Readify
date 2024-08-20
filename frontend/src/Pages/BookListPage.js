@@ -8,6 +8,7 @@ const BookListPage = () => {
         <div className="booklist-page">
             <Navbar />
             <h1>Book List</h1>
+            <p>Your books</p>
             <Footer />
         </div>
     );

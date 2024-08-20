@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.css';
 
 const LoginPage = () => {
@@ -10,6 +10,8 @@ const LoginPage = () => {
         securityQuestion: '',
         securityAnswer: '',
     });
+
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,6 +25,7 @@ const LoginPage = () => {
         e.preventDefault();
         // Handle form submission logic
         console.log(formData);
+        navigate('/home-page');
     };
 
     return (

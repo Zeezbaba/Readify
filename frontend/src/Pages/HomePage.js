@@ -1,10 +1,13 @@
 import React from 'react';
 import '../styles/HomePage.css';
-import bookimage from '../assets/bookimage-1.jpg'
+import bookimage from '../assets/bookimage-1.jpg';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const HomePage = () => {
   return (
     <div className="home-page">
+      <Navbar />
       <h1>WELCOME</h1>
       <div className="book-sections">
         <div className="book-section">
@@ -26,6 +29,7 @@ const HomePage = () => {
           <button>Want to read</button>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

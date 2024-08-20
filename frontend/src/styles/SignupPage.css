@@ -94,3 +94,7 @@
     color: #D3B673;
     text-decoration: none;
 }
+
+.login-link a:hover {
+    text-decoration: underline;
+}

@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 
 
-flask_app = Flask(__name__)
+flask_app = Flask(__name__, static_folder='static')
 flask_app.config.from_object(Config)
 CORS(flask_app)
 

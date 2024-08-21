@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 from backend.app.extensions import RegisterUser
 from backend.app.utils import search_book_by_title
 from flask_cors import CORS
+import os
 # import requests
 
 CORS(flask_app)
@@ -29,6 +30,14 @@ def static_proxy(path):
     """This route allows React Router to handle client-side routing
     """
     return send_from_directory(flask_app.static_folder, path)
+
+
+# @flask_app.route('/')
+# @flask_app.route('/<path:path>')
+# def serve_react_app(path=None):
+#     if path and os.path.exists(os.path.join(flask_app.static_folder, path)):
+#         return flask_app.send_static_file(path)
+#     return flask_app.send_static_file('index.html')
 
 
 # @flask_app.route('/')

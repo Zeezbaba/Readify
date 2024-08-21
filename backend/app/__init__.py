@@ -4,9 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_cors import CORS
+import os
 
 
-flask_app = Flask(__name__, static_folder='static')
+flask_app = Flask(__name__, static_folder='static', static_url_path='/static')
 flask_app.config.from_object(Config)
 CORS(flask_app)
 

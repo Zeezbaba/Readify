@@ -21,14 +21,14 @@ CORS(flask_app)
 # Serve the React app
 @flask_app.route('/')
 def serve():
-    return send_from_directory(flask_app.static, 'index.html')
+    return send_from_directory(flask_app.static_folder, 'index.html')
 
 
 @flask_app.route('/<path:path>')
 def static_proxy(path):
     """This route allows React Router to handle client-side routing
     """
-    return send_from_directory(flask_app.static, path)
+    return send_from_directory(flask_app.static_folder, path)
 
 
 # @flask_app.route('/')

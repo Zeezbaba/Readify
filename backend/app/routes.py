@@ -255,7 +255,7 @@ def create_shelf():
     return jsonify({ 'message': 'Shelf created successfully', 'shelf_id': new_shelf.id }), 201
 
 #[x]: Tested
-@flask_app.route('/api/books/search', methods=['POST'], strict_slashes=False)
+@flask_app.route('/api/books/search', methods=['GET'], strict_slashes=False)
 @login_required
 def search_books():
     """API endpoint for book search

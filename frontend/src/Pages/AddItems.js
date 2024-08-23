@@ -3,6 +3,7 @@ import { searchBooks, addBook } from '../services/api';
 import '../styles/AddItems.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import debounce from 'lodash.debounce';
 
 const AddItems = () => {
     const [query, setQuery] = useState('');
@@ -10,11 +11,11 @@ const AddItems = () => {
     const [selectedBook, setSelectedBook] = useState(null);
     const [message, setMessage] = useState('');
 
-    const handleSearch = async (e) => {
+    const handleSearch = debounce(async (e) => {
         e.preventDefault();
         const results = await searchBooks(query);
         setBooks(results);
-    };
+    }, 500);
 
     const handleSelectBook = (book) => {
         setSelectedBook(book);

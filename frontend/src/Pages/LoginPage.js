@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { loginUser } from '../services/api';
 import '../styles/LoginPage.css';
 
 const LoginPage = () => {
     const [formData, setFormData] = useState({
-        name: '',
         email: '',
         password: '',
-        securityQuestion: '',
-        securityAnswer: '',
     });
 
     const navigate = useNavigate();
@@ -21,11 +19,15 @@ const LoginPage = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission logic
-        console.log(formData);
-        navigate('/home-page');
+        try {
+            const data = await loginUser({ email: formData.email, password: formData.password });
+            console.log('Login Successful:', data)
+            navigate('/home-page');
+        } catch (error) {
+            console.error('Login failed:', error);
+        }
     };
 
     return (
@@ -50,14 +52,14 @@ const LoginPage = () => {
 
                         <label htmlFor="password">Password</label>
                         <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        value={formData.password} 
-                        onChange={handleChange} 
-                        placeholder="Enter your password" 
-                        required
-                    />
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            value={formData.password} 
+                            onChange={handleChange} 
+                            placeholder="Enter your password" 
+                            required
+                        />
                     </div>
                     <button type="submit" className="login-btn">Log In</button>
                 </form>

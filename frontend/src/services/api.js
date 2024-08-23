@@ -1,37 +1,6 @@
 import axios from 'axios';
 
-// Function to search for books
-export const searchBooks = async (searchTerm) => {
-    try {
-        const response = await axios.get('/api/books/search', {
-            params: { search_term: searchTerm }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error searching for books:', error);
-        if (error.response && error.response.data) {
-            throw new Error(error.response.data.error);
-        } else {
-            throw new Error('An unexpected error occurred.');
-        }
-    }
-};
-
-//addbooks
-export const addBook = async (bookData) => {
-    try {
-        const response = await axios.post('/api/books/add-book', bookData);
-        return response.data;
-    } catch (error) {
-        console.error('Error adding book:', error);
-        if (error.response && error.response.data) {
-            throw new Error(error.response.data.error);
-        } else {
-            throw new Error('An unexpected error occurred.');
-        }
-    }
-};
-
+const baseURL = 'http://localhost:5000/api';
 
 export const fetchUserProfile = async (username) => {
     try {
@@ -42,3 +11,53 @@ export const fetchUserProfile = async (username) => {
         throw error;
     }
 };
+
+
+//const api = axios.create({
+    //baseURL: 'http://localhost:5000/api',
+    //headers: {
+        //'Content-Type': 'application/json',
+    //},
+//});
+
+//Function to login
+export const loginUser = async (credentials) => {
+    try {
+        const response = await axios.post(`${baseURL}/login`, credentials);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
+//Function to register
+export const registerUser = async (userData) => {
+    try {
+        const response = await axios.post(`${baseURL}/register`, userData);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
+//Search books
+export const searchBooks = async (searchTerm) => {
+    try {
+      const response = await axios.post(`/books/search?q=${encodeURIComponent(searchTerm)}`);
+      return response.data.books;
+    } catch (error) {
+        throw error.response.data;
+    }
+  };
+
+//addbooks
+export const addBook = async (bookData) => {
+    try {
+        const response = await axios.post(`${baseURL}/login/books/add-book`, bookData);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
+//export default api;

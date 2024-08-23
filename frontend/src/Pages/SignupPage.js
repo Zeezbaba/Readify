@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { registerUser } from '../services/api';
 import '../styles/SignupPage.css';
 
 const SignupPage = () => {
@@ -21,11 +22,15 @@ const SignupPage = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission logic
-        console.log(formData);
-        navigate('/home-page');
+        try {
+            const data = await registerUser(formData);
+            console.log('Signup Successful:', data);
+            navigate('/home-page');
+        } catch (error) {
+            console.error('Signup failed:', error);
+        }
     };
 
     return (
@@ -44,7 +49,8 @@ const SignupPage = () => {
                         name="name" 
                         value={formData.name} 
                         onChange={handleChange} 
-                        placeholder="Enter your name" 
+                        placeholder="Enter your name"
+                        required
                     />
 
                     <label htmlFor="email">Email</label>
@@ -54,7 +60,8 @@ const SignupPage = () => {
                         name="email" 
                         value={formData.email} 
                         onChange={handleChange} 
-                        placeholder="Enter your email" 
+                        placeholder="Enter your email"
+                        required
                     />
 
                     <label htmlFor="password">Password</label>
@@ -74,7 +81,8 @@ const SignupPage = () => {
                         name="securityQuestion" 
                         value={formData.securityQuestion} 
                         onChange={handleChange} 
-                        placeholder="Enter your security question" 
+                        placeholder="Enter your security question"
+                        required
                     />
 
                     <label htmlFor="securityAnswer">Security Answer</label>
@@ -84,7 +92,8 @@ const SignupPage = () => {
                         name="securityAnswer" 
                         value={formData.securityAnswer} 
                         onChange={handleChange} 
-                        placeholder="Enter your security answer" 
+                        placeholder="Enter your security answer"
+                        required 
                     />
 
                     <button type="submit" className="signup-btn">Sign up</button>

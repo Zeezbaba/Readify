@@ -44,11 +44,61 @@ def static_proxy(path):
 @flask_app.route('/api/home', methods=['GET'], strict_slashes=False)
 @login_required
 def homePage():
-    # codes
-    # return render_template('homePage.html', title='Home')
-    return jsonify({ 'message': 'Welcome to Readify'})
+    # Get current user details
+    user = current_user
+    user_info = {
+        'username': user.username,
+        'email': user.email
+    }
+
+    # Query books added by the user
+    user_books = db.session.execute(
+        sa.select(Book)
+        .join(UserBook)
+        .where(UserBook.user_id == user.id)
+    ).scalars().all()
+
+    # Prepare books data for response
+    books_data = [{
+        'title': book.title,
+        'author': book.author,
+        'cover_image': book.cover_image
+    } for book in user_books]
+
+    # Prepare the response
+    response = {
+        'user': user_info,
+        'books': books_data,
+        'book_count': len(books_data)
+    }
+    
+    return jsonify(response)
 
 #[x]: Tested
+# @flask_app.route('/api/login', methods=['POST'], strict_slashes=False)
+# def login():
+#     if current_user.is_authenticated:
+#         return jsonify({ 'message': 'Already logged in' }), 200
+
+#     # get json input from frontend form
+#     form_data = request.get_json()
+#     print(form_data)
+#     if form_data:
+#         # check if user exists then verify password
+#         username = form_data.get("username")
+#         password = form_data.get("password")
+#         remember_me =form_data.get("remember me")
+
+#         user = db.session.scalar(
+#             sa.select(User).where(User.username == username))
+#         if user is None or not user.check_password(password):
+#             return jsonify({ 'error': 'Invalid username or password'}), 401
+
+#         login_user(user, remember=remember_me)
+#         return jsonify({ 'message': 'Login successful'})
+#     return jsonify({ 'error': 'Invalid form submission' }), 400
+
+
 @flask_app.route('/api/login', methods=['POST'], strict_slashes=False)
 def login():
     if current_user.is_authenticated:
@@ -56,27 +106,25 @@ def login():
 
     # get json input from frontend form
     form_data = request.get_json()
-    print(form_data)
+    print("Received form data:", form_data)  # Debug print
     if form_data:
-        # check if user exists then verify password
         username = form_data.get("username")
         password = form_data.get("password")
-        remember_me =form_data.get("remember me")
+        remember_me = form_data.get("remember me")
 
-        user = db.session.scalar(
-            sa.select(User).where(User.username == username))
-        if user is None or not user.check_password(password):
+        user = db.session.scalar(sa.select(User).where(User.email == username))
+        if user is None:
+            print("User not found")  # Debug print
+            return jsonify({ 'error': 'Invalid username or password'}), 401
+
+        if not user.check_password(password):
+            print("Password check failed")  # Debug print
             return jsonify({ 'error': 'Invalid username or password'}), 401
 
         login_user(user, remember=remember_me)
         return jsonify({ 'message': 'Login successful'})
-        # next_page = request.args.get('next')
-        # if not next_page or urlsplit(next_page).netloc != '':
-        #     next_page = url_for('homePage')
-        # return redirect (next_page)
+    
     return jsonify({ 'error': 'Invalid form submission' }), 400
-    # return render_template('login.html', title='Sign In', form=form)
-#TODO: ALL 'render_template' calls will need to be changed to 'send_from_directory' to integrate with REACT
 
 #[x]: Tested
 @flask_app.route('/api/register', methods=['POST'], strict_slashes=False)
@@ -256,13 +304,14 @@ def create_shelf():
 
 #[x]: Tested
 @flask_app.route('/api/books/search', methods=['GET'], strict_slashes=False)
-@login_required
+# @login_required
 def search_books():
     """API endpoint for book search
     """
     # books = []
     # if request.method == 'POST':
     search_term = request.json.get('search term', '')
+    # search_term = request.args.get('q', '')
     # print(search_term)
 
     query = {}

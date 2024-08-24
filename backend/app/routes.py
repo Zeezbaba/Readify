@@ -76,7 +76,7 @@ def login():
         # return redirect (next_page)
     return jsonify({ 'error': 'Invalid form submission' }), 400
     # return render_template('login.html', title='Sign In', form=form)
-#TODO: ALL 'render_template' calls will need to be changed to 'send_from_directory' to integrate with REACT
+
 
 #[x]: Tested
 @flask_app.route('/api/register', methods=['POST'], strict_slashes=False)
@@ -255,14 +255,15 @@ def create_shelf():
     return jsonify({ 'message': 'Shelf created successfully', 'shelf_id': new_shelf.id }), 201
 
 #[x]: Tested
-@flask_app.route('/api/books/search', methods=['POST'], strict_slashes=False)
+@flask_app.route('/api/books/search', methods=['GET'], strict_slashes=False)
 @login_required
 def search_books():
     """API endpoint for book search
     """
     # books = []
     # if request.method == 'POST':
-    search_term = request.json.get('search term', '')
+    # search_term = request.json.get('search term', '')
+    search_term = request.args.get('search_term')
     # print(search_term)
 
     query = {}
@@ -393,7 +394,7 @@ def view_single_book(book_id):
             "title": book.title,
             "shelf": user_book.shelf_id, 
             "author": book.author, 
-            "publication date": book.publication_date, 
+            "publication date": book.publication_date,
             "genre": book.genre, 
             "isbn": book.isbn, 
             "cover image": book.cover_image, 

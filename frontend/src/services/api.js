@@ -157,7 +157,11 @@ export const loginUser = async (username, password, rememberMe) => {
 
 // Function to search for books
 export const searchBooks = async (searchTerm) => {
-    return axios.post(`${API_URL}/books/search`, { 'search term': searchTerm });
+    return axios.post(`${API_URL}/books/search`, { 'search term': searchTerm }, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
 };
 
 // Function to add a book

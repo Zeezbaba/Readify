@@ -9,6 +9,12 @@ const AddItems = () => {
     const [query, setQuery] = useState('');
     const [books, setBooks] = useState([]);
     const [selectedBook, setSelectedBook] = useState(null);
+    const [manualEntry, setManualEntry] = useState({
+        title: '',
+        authors: '',
+        description: '',
+        coverUrl: ''
+    });
     const [message, setMessage] = useState('');
 
     const handleSearch = debounce(async (e) => {
@@ -21,21 +27,32 @@ const AddItems = () => {
         setSelectedBook(book);
     };
 
+    const handleManualChange = (e) => {
+        const { name, value } = e.target;
+        setManualEntry({
+            ...manualEntry,
+            [name]: value,
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (!selectedBook) {
-            setMessage('Please select a book to add.');
+        const bookToAdd = selectedBook || manualEntry;
+
+        if (!bookToAdd.title) {
+            setMessage('Please select or enter a book to add.');
             return;
         }
 
-        const result = await addBook(selectedBook);
+        const result = await addBook(bookToAdd);
 
         if (result.success) {
             setMessage(result.message);
             setSelectedBook(null);
             setBooks([]);
             setQuery('');
+            setManualEntry({ title: '', authors: '', description: '', coverUrl: '' });
         } else {
             setMessage(result.message);
         }
@@ -46,8 +63,8 @@ const AddItems = () => {
             <Navbar />
             <h1>Add Items</h1>
             <form onSubmit={handleSearch}>
-            <div>
-                <label>Search for a book:</label>
+                <div>
+                    <label>Search for a book:</label>
                     <input
                         type="text"
                         value={query}
@@ -55,7 +72,7 @@ const AddItems = () => {
                         required
                     />
                     <button type="submit">Search</button>
-            </div>
+                </div>
             </form>
                 
             <div>
@@ -74,7 +91,7 @@ const AddItems = () => {
                 )}
             </div>
 
-                {selectedBook && (
+            {selectedBook && (
                 <div>
                     <h3>Selected Book:</h3>
                     <p>{selectedBook.title}</p>
@@ -83,6 +100,52 @@ const AddItems = () => {
                     <button onClick={handleSubmit}>Add this Book</button>
                 </div>
             )}
+
+            <div className="manual-entry-section">
+                <h2>Or Enter Book Manually</h2>
+                <form onSubmit={handleSubmit}>
+                    <div>
+                        <label>Title:</label>
+                        <input
+                            type="text"
+                            name="title"
+                            value={manualEntry.title}
+                            onChange={handleManualChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Authors:</label>
+                        <input
+                            type="text"
+                            name="authors"
+                            value={manualEntry.authors}
+                            onChange={handleManualChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Description:</label>
+                        <textarea
+                            name="description"
+                            value={manualEntry.description}
+                            onChange={handleManualChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Cover Image URL:</label>
+                        <input
+                            type="text"
+                            name="coverUrl"
+                            value={manualEntry.coverUrl}
+                            onChange={handleManualChange}
+                            required
+                        />
+                    </div>
+                    <button type="submit">Add Manually Entered Book</button>
+                </form>
+            </div>
 
             {message && <p>{message}</p>}
             <Footer />

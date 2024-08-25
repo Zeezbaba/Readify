@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { getSecurityQuestion } from '../services/api';
+import '../styles/ForgotPassword.css'
 
 function ForgotPassword() {
   const [username, setUsername] = useState('');
@@ -23,19 +25,46 @@ function ForgotPassword() {
   };
 
   return (
-    <div>
+    <div className='recover-password'>
+      <header className="login-header">
+                <div className="logo">
+                <NavLink to="/">READIFY</NavLink>
+                </div>
+      </header>
       <h2>Forgot Password</h2>
       {!securityQuestion ? (
-        <form onSubmit={handleUsernameSubmit}>
-          <input placeholder="Enter your username" onChange={(e) => setUsername(e.target.value)} required />
-          <button type="submit">Submit</button>
+        <form className="recover-form" onSubmit={handleUsernameSubmit}>
+          <label htmlFor="username">Username</label>
+          <input 
+            type="text" 
+            id="username"
+            name="username"
+            value={username}
+            placeholder="Enter your username"
+            onChange={(e) => setUsername(e.target.value)} 
+            required />
+          <button type="submit" className="submit-btn">Submit</button>
         </form>
       ) : (
-        <form onSubmit={handleAnswerSubmit}>
+        <form className="recover-form" onSubmit={handleAnswerSubmit}>
           <p>Security Question: {securityQuestion}</p>
-          <input placeholder="Answer" onChange={(e) => setAnswer(e.target.value)} required />
-          <input placeholder="New Password" type="password" onChange={(e) => setNewPassword(e.target.value)} required />
-          <button type="submit">Reset Password</button>
+          <input 
+            type="text" 
+            id="Answer" 
+            name="Answer"
+            value={answer}
+            placeholder="Answer" 
+            onChange={(e) => setAnswer(e.target.value)} 
+            required />
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            value={newPassword}
+            placeholder="New Password" 
+            onChange={(e) => setNewPassword(e.target.value)} 
+            required />
+          <button type="submit" className="submit-btn">Reset Password</button>
         </form>
       )}
     </div>

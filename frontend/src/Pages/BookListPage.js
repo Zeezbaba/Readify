@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+/* import React, { useState, useEffect } from 'react';
 import { fetchBooks } from '../services/api';
 import '../styles/BookListPage.css';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Footer from '../components/Footer'; */
 
-const BookListPage = () => {
+/* const BookListPage = () => {
     const [books, setBooks] = useState([]);
     const [query, setQuery] = useState('');
     const [filteredBooks, setFilteredBooks] = useState([]);
@@ -59,3 +59,5 @@ const BookListPage = () => {
             </div>
         );
 };
+
+export default BookListPage; */

@@ -7,6 +7,7 @@ import WelcomePage from "../Pages/welcome";
 import SignupPage from "../Pages/SignupPage";
 import LoginPage from "../Pages/LoginPage";
 import BookListPage from "../Pages/BookListPage";
+import ForgotPassword from "../Pages/ForgotPassword";
 import "./App.css"
 
 
@@ -18,6 +19,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<WelcomePage />} />
             <Route path="/register" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/book-list" element={<BookListPage />} />

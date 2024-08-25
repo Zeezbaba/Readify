@@ -11,9 +11,9 @@ const AddItems = () => {
     const [selectedBook, setSelectedBook] = useState(null);
     const [manualEntry, setManualEntry] = useState({
         title: '',
-        authors: '',
+        author: '',
         description: '',
-        coverUrl: ''
+        cover_image_url: ''
     });
     const [message, setMessage] = useState('');
 
@@ -39,7 +39,7 @@ const AddItems = () => {
         e.preventDefault();
         
         const bookToAdd = selectedBook || manualEntry;
-
+        
         if (!bookToAdd.title) {
             setMessage('Please select or enter a book to add.');
             return;
@@ -52,7 +52,7 @@ const AddItems = () => {
             setSelectedBook(null);
             setBooks([]);
             setQuery('');
-            setManualEntry({ title: '', authors: '', description: '', coverUrl: '' });
+            setManualEntry({ title: '', author: '', description: '', cover_image_url: '' });
         } else {
             setMessage(result.message);
         }
@@ -81,7 +81,7 @@ const AddItems = () => {
                         {books.map((book, index) => (
                             <li key={index}>
                                 <div onClick={() => handleSelectBook(book)}>
-                                    <img src={book.coverUrl} alt={`${book.title} cover`} />
+                                    <img src={book.cover_image_url} alt={`${book.title} cover`} />
                                     <p>{book.title}</p>
                                     <p>{book.author}</p>
                                 </div>
@@ -96,7 +96,7 @@ const AddItems = () => {
                     <h3>Selected Book:</h3>
                     <p>{selectedBook.title}</p>
                     <p>{selectedBook.author}</p>
-                    <img src={selectedBook.coverUrl} alt={`${selectedBook.title} cover`} />
+                    <img src={selectedBook.cover_image_url} alt={`${selectedBook.title} cover`} />
                     <button onClick={handleSubmit}>Add this Book</button>
                 </div>
             )}
@@ -118,8 +118,8 @@ const AddItems = () => {
                         <label>Authors:</label>
                         <input
                             type="text"
-                            name="authors"
-                            value={manualEntry.authors}
+                            name="author"
+                            value={manualEntry.author}
                             onChange={handleManualChange}
                             required
                         />
@@ -137,8 +137,8 @@ const AddItems = () => {
                         <label>Cover Image URL:</label>
                         <input
                             type="text"
-                            name="coverUrl"
-                            value={manualEntry.coverUrl}
+                            name="cover_image_url"
+                            value={manualEntry.cover_image_url}
                             onChange={handleManualChange}
                             required
                         />

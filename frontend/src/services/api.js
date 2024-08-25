@@ -165,14 +165,23 @@ export const resetPassword = async (username, answer, newPassword) => {
 
 // Function to search for books
 export const searchBooks = async (searchTerm) => {
-    return axios.post(`${API_URL}/books/search`, { 'search term': searchTerm }, {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+  
+  return axios.post(`${API_URL}/books/search`, { 'search term': searchTerm }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 };
 
 // Function to add a book
 export const addBook = async (bookData) => {
-    return axios.post(`${API_URL}/books/add-book`, { bookData });
+  console.log(bookData);
+  const  token = localStorage.getItem('JwtToken');
+  
+  return axios.post(`${API_URL}/books/add-book`, bookData, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+      }
+    });
 };

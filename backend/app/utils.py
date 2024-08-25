@@ -40,6 +40,9 @@ def search_book_by_title(query):
             subject_list = book.get('subjects')
             if subject_list:
                 book['genre'] = get_genre(subject_list)
+            else:
+                book['genre'] = "Not available"
+
                     
         return books
     else:

@@ -122,7 +122,7 @@
 
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5000';
 
 // Login service
 export const loginUser = async (username, password, rememberMe) => {
@@ -132,25 +132,27 @@ export const loginUser = async (username, password, rememberMe) => {
       "remember me": rememberMe
     });
   };
+
+
   
   // Registration service
-  export const registerUser = async (username, email, password, securityQuestion, securityAnswer) => {
-    return axios.post(`${API_URL}/register`, {
-      username,
-      email,
-      password,
-      "security question": securityQuestion,
-      "security answer": securityAnswer
-    });
-  };
+export const registerUser = async (username, email, password, securityQuestion, securityAnswer) => {
+  return axios.post(`${API_URL}/register`, {
+    username,
+    email,
+    password,
+    "security question": securityQuestion,
+    "security answer": securityAnswer
+  });
+};
   
   // Forgot password - get security question
-  export const getSecurityQuestion = async (username) => {
+export const getSecurityQuestion = async (username) => {
     return axios.post(`${API_URL}/user/forgot-password`, { username });
   };
   
   // Password recovery - reset password
-  export const resetPassword = async (username, answer, newPassword) => {
+export const resetPassword = async (username, answer, newPassword) => {
     return axios.post(`${API_URL}/user/recover-password`, {
       username,
       answer,
@@ -158,7 +160,13 @@ export const loginUser = async (username, password, rememberMe) => {
     });
   };
 
-  // Get home page data
+  // Fetch home page data (user info and recent books)
   export const getHomePageData = async () => {
-    return axios.get(`${API_URL}/home`);
+    const token = localStorage.getItem('JwtToken');
+    console.log("token:", token);
+    return axios.get(`${API_URL}/home`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
   };

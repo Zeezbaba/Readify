@@ -17,9 +17,9 @@ const App = () => {
         <main className="content-wrapper">
           <Routes>
             <Route path="/" element={<WelcomePage />} />
-            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/register" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/home-page" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/book-list" element={<BookListPage />} />
             <Route path="/add-items" element={<AddItems />} />
             <Route path="/profile" element={<Profile />} />

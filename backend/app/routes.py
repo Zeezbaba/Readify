@@ -335,7 +335,9 @@ def search_books():
     """
     # books = []
     # if request.method == 'POST':
-    search_term = request.json.get('search term', '')
+    # search_term = request.json.get('search term', '')
+    search_term = request.args.get('search_term')
+    # search_term = request.json.get('search term', '')
     # search_term = request.args.get('q', '')
     # print(search_term)
 
@@ -477,7 +479,7 @@ def view_single_book(book_id):
             "title": book.title,
             "shelf": user_book.shelf_id, 
             "author": book.author, 
-            "publication date": book.publication_date, 
+            "publication date": book.publication_date,
             "genre": book.genre, 
             "isbn": book.isbn, 
             "cover image": book.cover_image, 

@@ -12,14 +12,6 @@
 //     }
 // };
 
-
-// //const api = axios.create({
-//     //baseURL: 'http://localhost:5000/api',
-//     //headers: {
-//         //'Content-Type': 'application/json',
-//     //},
-// //});
-
 // //Function to login
 // export const loginUser = async (credentials) => {
 //     try {
@@ -170,3 +162,17 @@ export const resetPassword = async (username, answer, newPassword) => {
       }
     });
   };
+
+// Function to search for books
+export const searchBooks = async (searchTerm) => {
+    return axios.post(`${API_URL}/books/search`, { 'search term': searchTerm }, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+};
+
+// Function to add a book
+export const addBook = async (bookData) => {
+    return axios.post(`${API_URL}/books/add-book`, { bookData });
+};

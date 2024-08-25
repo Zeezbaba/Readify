@@ -15,12 +15,17 @@
     align-items: center;
 }
 
-.additems-page input {
+.additems-page input, .additems-page textarea {
     margin: 10px 0;
     padding: 10px;
     width: 300px;
     border-radius: 5px;
     border: 1px solid #ddd;
+}
+
+.additems-page textarea {
+    height: 100px;
+    resize: vertical;
 }
 
 .additems-page button {
@@ -29,4 +34,34 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.manual-entry-section {
+    margin-top: 30px;
+    text-align: left;
+    width: 80%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+}
+
+.manual-entry-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.manual-entry-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.manual-entry-section input, .manual-entry-section textarea {
+    width: 100%;
+}
+
+.manual-entry-section button {
+    margin-top: 20px;
 }

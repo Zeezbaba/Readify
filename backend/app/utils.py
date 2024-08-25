@@ -32,6 +32,8 @@ def search_book_by_title(query):
             cover_id = book.get('cover_i')
             if cover_id:
                 book['cover_image_url'] = get_cover_image(cover_id)
+            else:
+                book['cover_image_url'] = "https://via.placeholder.com/128x200?text=No+Cover+Image"
             # get description
             work_id = book.get('key')
             if work_id:
@@ -40,6 +42,9 @@ def search_book_by_title(query):
             subject_list = book.get('subjects')
             if subject_list:
                 book['genre'] = get_genre(subject_list)
+            else:
+                book['genre'] = "Not available"
+
                     
         return books
     else:

@@ -10,7 +10,7 @@ const WelcomePage = () => {
             <header className="welcome-header">
                 <h1>READIFY</h1>
                 <nav>
-                    <Link to="/signup">
+                    <Link to="/register">
                         <button className="nav-btn">Get Started</button>
                     </Link>
                     <Link to="/login">
@@ -22,7 +22,7 @@ const WelcomePage = () => {
                 <div className="background-overlay">
                     <h1 className="main-title">READIFY</h1>
                     <p className="subtitle">Unleash your inner bibliophile and conquer your book collection!</p>
-                    <Link to="/signup">
+                    <Link to="/register">
                         <button className="cta-btn">Join Now</button>
                     </Link>
                 </div>

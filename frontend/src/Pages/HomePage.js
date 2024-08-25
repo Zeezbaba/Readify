@@ -1,41 +1,3 @@
-// import React from 'react';
-// import '../styles/HomePage.css';
-// import bookimage from '../assets/bookimage-1.jpg';
-// import Navbar from '../components/Navbar';
-// import Footer from '../components/Footer';
-
-// const HomePage = () => {
-//   return (
-//     <div className="home-page">
-//       <Navbar />
-//       <h1>WELCOME</h1>
-//       <div className="book-sections">
-//         <div className="book-section">
-//           <h2>Newly Added</h2>
-//           <p>TheSenior Vice President of Christie's and seasoned auctioneer Lydia Fenet,</p>
-//           <img src={bookimage} alt="Newly added book" />
-//           <button>Want to read</button>
-//         </div>
-//         <div className="book-section">
-//           <h2>Suggested</h2>
-//           <p>A charming holiday baking cookbook brimming with delicious, indulgent recipes,</p>
-//           <img src={bookimage} alt="Suggested book" />
-//           <button>Want to read</button>
-//         </div>
-//         <div className="book-section">
-//           <h2>Continue</h2>
-//           <p>Minimalism is the art of knowing how much is just enough. Digital minimalism</p>
-//           <img src={bookimage} alt="Continue reading book" />
-//           <button>Want to read</button>
-//         </div>
-//       </div>
-//       <Footer />
-//     </div>
-//   );
-// };
-
-// export default HomePage;
-
 import React, { useEffect, useState } from 'react';
 import '../styles/HomePage.css';
 import bookimage from '../assets/bookimage-1.jpg';
@@ -46,28 +8,45 @@ import { getHomePageData } from '../services/api';
 const HomePage = () => {
   const [userData, setUserData] = useState(null);
   const [books, setBooks] = useState([]);
-  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log("Fetching home page data...");
         const response = await getHomePageData();
+        console.log(response);
         setUserData(response.data.user);
         setBooks(response.data.books);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching home page data:', error);
+        console.error(error);
+        setError('Error fetching home page data.');
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
   return (
     <div className="home-page">
       <Navbar />
       <h1>WELCOME{userData ? `, ${userData.username || userData.email}` : ''}</h1>
+      
       <div className="user-info">
         <p>Books added: {books.length > 0 ? books.length : '0'}</p>
       </div>
+      
       <div className="book-sections">
         {books.length > 0 ? (
           books.map((book, index) => (
@@ -79,12 +58,13 @@ const HomePage = () => {
             </div>
           ))
         ) : (
-          <div className="book-section">
+          <div className="no-books-section">
             <h2>No books added</h2>
             <img src={bookimage} alt="No books" />
           </div>
         )}
       </div>
+      
       <Footer />
     </div>
   );

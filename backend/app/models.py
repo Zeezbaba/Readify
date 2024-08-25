@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy as sa
 from flask_login import UserMixin
 # from sqlalchemy import Column, String, Integer, ForeignKey
 from werkzeug.security import generate_password_hash, check_password_hash
-from backend.app import login
+# from backend.app import login
 from backend.app import db
 from typing import Optional
 from datetime import date
@@ -128,14 +128,25 @@ class Book(UserMixin, db.Model):
 
     @staticmethod
     def get_recent_books(limit=10):
-        """Retrieve the most recent books
-        added to the database
-        """
-        return db.session.execute(
-            sa.select(Book)
-            .order_by(Book.id.desc())
-            .limit(limit)
-        ).all()
+        """Retrieve the most recent books added to the database."""
+        # Query to select books ordered by their id (most recent first) with a limit
+        query = sa.select(Book).order_by(Book.id.desc()).limit(limit)
+    
+        # Execute the query and fetch the results
+        result = db.session.execute(query).scalars().all()  # Scalars ensures we get Book objects directly
+
+        return result
+
+    # @staticmethod
+    # def get_recent_books(limit=10):
+    #     """Retrieve the most recent books
+    #     added to the database
+    #     """
+    #     return db.session.execute(
+    #         sa.select(Book)
+    #         .order_by(Book.id.desc())
+    #         .limit(limit)
+    #     ).all()
 
 
 class UserBook(UserMixin, db.Model):
@@ -158,6 +169,6 @@ class UserBook(UserMixin, db.Model):
         return f'<UserBook: User {self.user_id} - Book {self.book_id}>'  #TODO: repr of userbooks
 
 
-@login.user_loader
-def load_user(id):
-    return db.session.get(User, int(id))
+# @login.user_loader
+# def load_user(id):
+#     return db.session.get(User, int(id))

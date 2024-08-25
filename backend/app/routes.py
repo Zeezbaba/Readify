@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from backend.app.extensions import UserLogin
 from flask_login import current_user, login_user
 from werkzeug.security import generate_password_hash
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import sqlalchemy as sa
 # from backend.app import db
 from backend.app.models import User, Book, Shelf, UserBook
@@ -33,45 +34,47 @@ def static_proxy(path):
 
 
 # @flask_app.route('/')
-# @flask_app.route('/<path:path>')
-# def serve_react_app(path=None):
-#     if path and os.path.exists(os.path.join(flask_app.static_folder, path)):
-#         return flask_app.send_static_file(path)
-#     return flask_app.send_static_file('index.html')
-
-
-# @flask_app.route('/')
-@flask_app.route('/api/home', methods=['GET'], strict_slashes=False)
-@login_required
+@flask_app.route('/home', methods=['GET'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def homePage():
-    # Get current user details
-    user = current_user
+    """Display the user's home page with their name or email and recent books."""
+    # print(f"User {current_user.username} is requesting the home page")
+    # user = current_user  # Get the current authenticated user
+    current_user_id = get_jwt_identity()
+    user = db.session.scalar(sa.select(User).where(User.id == current_user_id))
+    
+    # if not user:
+    #     return jsonify({'error': 'User not found'}), 404
+
     user_info = {
-        'username': user.username,
-        'email': user.email
+        "username": user.username,
+        "email": user.email
     }
 
-    # Query books added by the user
+    # Get the last three books added by the user
     user_books = db.session.execute(
         sa.select(Book)
         .join(UserBook)
         .where(UserBook.user_id == user.id)
-    ).scalars().all()
+        .order_by(UserBook.id.desc())  # Sort by the most recent
+        .limit(3)
+    ).all()
 
-    # Prepare books data for response
-    books_data = [{
-        'title': book.title,
-        'author': book.author,
-        'cover_image': book.cover_image
-    } for book in user_books]
+    if user_books:
+        books = [{
+            "title": book.title,
+            "author": book.author,
+            "cover_image": book.cover_image
+        } for book, user_book in user_books]
+    else:
+        books = []
 
-    # Prepare the response
     response = {
-        'user': user_info,
-        'books': books_data,
-        'book_count': len(books_data)
+        "user": user_info,
+        "books": books,
+        "books_count": len(books)
     }
-    
     return jsonify(response)
 
 #[x]: Tested
@@ -98,41 +101,52 @@ def homePage():
 #         return jsonify({ 'message': 'Login successful'})
 #     return jsonify({ 'error': 'Invalid form submission' }), 400
 
+# @login.user_loader
+# def load_user(user_id):
+#     return User.query.get(int(user_id))
 
-@flask_app.route('/api/login', methods=['POST'], strict_slashes=False)
+
+@flask_app.route('/login', methods=['POST'], strict_slashes=False)
+# @jwt_required()
 def login():
-    if current_user.is_authenticated:
-        return jsonify({ 'message': 'Already logged in' }), 200
+    # user_id = get_jwt_identity()
+    # if user_id:
+    #     return jsonify({ 'message': 'Already logged in' }), 200
 
     # get json input from frontend form
     form_data = request.get_json()
     print("Received form data:", form_data)  # Debug print
-    if form_data:
-        username = form_data.get("username")
-        password = form_data.get("password")
-        remember_me = form_data.get("remember me")
-
-        user = db.session.scalar(sa.select(User).where(User.email == username))
-        if user is None:
-            print("User not found")  # Debug print
-            return jsonify({ 'error': 'Invalid username or password'}), 401
-
-        if not user.check_password(password):
-            print("Password check failed")  # Debug print
-            return jsonify({ 'error': 'Invalid username or password'}), 401
-
-        login_user(user, remember=remember_me)
-        return jsonify({ 'message': 'Login successful'})
     
-    return jsonify({ 'error': 'Invalid form submission' }), 400
+    if not form_data:
+        return jsonify({'error': 'Invalid form submission'}), 400
+
+    username = form_data.get("username")
+    password = form_data.get("password")
+
+    user = db.session.scalar(sa.select(User).where(User.email == username))
+        # user = User.query.filter_by(username=request.form['username']).first()
+    if user is None:
+        print("User not found")  # Debug print
+        return jsonify({ 'error': 'Invalid username or password'}), 401
+
+    if not user.check_password(password):
+        print("Password check failed")  # Debug print
+        return jsonify({'error': 'Invalid username or password'}), 401
+
+        
+    return jsonify({'message': 'Login successful', 'access_token': create_access_token(user.id)})
+    
+    
 
 #[x]: Tested
-@flask_app.route('/api/register', methods=['POST'], strict_slashes=False)
+@flask_app.route('/register', methods=['POST'], strict_slashes=False)
+# @jwt_required()
 def register():
     """API endpoint for new user registration
     """
-    if current_user.is_authenticated:
-        return jsonify({ 'message': 'Already logged in' }), 200
+    # user_id = get_jwt_identity()
+    # if user_id:
+    #     return jsonify({ 'message': 'Already logged in' }), 200
     
     # get json input from frontend form
     form = request.get_json()
@@ -160,7 +174,7 @@ def register():
     return jsonify({ 'error': 'No input provided' }), 400
 
 
-@flask_app.route('/api/user/forgot-password', methods=['POST'])
+@flask_app.route('/user/forgot-password', methods=['POST'])
 def forgot_password():
     """Initiates the password recovery process
     """
@@ -176,19 +190,22 @@ def forgot_password():
     return jsonify({ 'question': user.security_question}), 200
 
 #[x]: Tested 
-@flask_app.route('/api/user/<username>', methods=['GET'], strict_slashes=False)
-@login_required
+@flask_app.route('/user/<username>', methods=['GET'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def user(username):
     """User's dashboard
     """
+    user_identity = get_jwt_identity()
     user = db.session.scalar(sa.select(User).where(User.username == username))
-    if user is None:
+    if user is None or user.username != user_identity:
         # flash('User not found')
         # return redirect(url_for('homePage'))
         abort(404, description="User not found")
 
     # get the user's shelves
-    shelves = [ shelf.to_dict() for shelf in current_user.shelves]
+    # shelves = [ shelf.to_dict() for shelf in current_user.shelves]
+    shelves = [{'id': shelf.id, 'name': shelf.name} for shelf in user.shelves]
 
     # Get the user's books
     page = request.args.get('page', 1, type=int)
@@ -204,28 +221,30 @@ def user(username):
 
     # Fetch the books associated with the user's books
     # books = [user_books.book for user_book in user_books]
-    books = []
-    for user_book in user_books:
-        book_details = {
+    # books = []
+    # for user_book in user_books:
+    book = [{
             'title': user_book.book.title,
             'author': user_book.book.author,
             'genre': user_book.book.genre,
             'publication_date': user_book.book.publication_date,
             'cover_image': user_book.book.cover_image
-        }
-        books.append(book_details)
+        } for user_book in user_books]
     
     # return render_template('user.html', user=user, shelves=shelves, books=books, page=page)
     return jsonify({ 'user': user.username, 'shelves': shelves, 'books': books, 'page': page})
 
-@flask_app.route('/api/user/update-security-question', methods=['POST'])
-@login_required
+@flask_app.route('/user/update-security-question', methods=['POST'])
+# @login_required
+@jwt_required()
 def update_security_question():
     """API endpoint for user to update security question
     that will be required for password recovery
     """
     data = request.json
-    user = current_user
+    user_identity = get_jwt_identity()
+
+    user = db.session.scalar(sa.select(User).where(User.username == user_identity))
 
     user.security_question = data['question']
     user.security_answer = generate_password_hash(data['answer'])
@@ -233,7 +252,7 @@ def update_security_question():
     db.session.commit()
     return jsonify({ 'message': 'Security question updated successfully' }), 200
 
-@flask_app.route('/api/user/security-question/<username>', methods=['GET'])
+@flask_app.route('/user/security-question/<username>', methods=['GET'])
 def get_security_question(username):
     """Gets the user security question
     """
@@ -244,7 +263,7 @@ def get_security_question(username):
     return jsonify({ 'question': user.security_question })
 
 
-@flask_app.route('/api/user/recover-password', methods=['POST'])
+@flask_app.route('/user/recover-password', methods=['POST'])
 def recover_password():
     """password recovery
     """
@@ -262,12 +281,14 @@ def recover_password():
     return jsonify({ 'message': 'Password reset successfully' }), 200
 
 #[x] Tested
-@flask_app.route('/api/user/shelves', methods=['GET'], strict_slashes=False)
-@login_required
+@flask_app.route('/user/shelves', methods=['GET'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def get_user_shelves():
     """API endpoint to retrieves shelves of a current user
     """
-    shelves = current_user.shelves
+    user_identity = get_jwt_identity()
+    user = db.session.scalar(sa.select(User).where(User.username == user_identity))
     # shelves = db.session.scalars(
     #     sa.select(Shelf).where(Shelf.user_id == current_user.id)
     # ).all()
@@ -276,13 +297,16 @@ def get_user_shelves():
     return jsonify({ 'shelves': shelf_list }), 200
 
 #[x]: Tested
-@flask_app.route('/api/shelves/create', methods=['POST'], strict_slashes=False)
-@login_required
+@flask_app.route('/shelves/create', methods=['POST'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def create_shelf():
     """API endpoint to create a new shelf for the user
     """
     data = request.json
     shelf_name = data.get('name')
+    user_identity = get_jwt_identity()
+    user = db.session.scalar(sa.select(User).where(User.username == user_identity))
 
     # validate shelf name
     if not shelf_name:
@@ -290,21 +314,22 @@ def create_shelf():
 
     # check if a shelf name already exists for the user
     existing_shelf = db.session.scalar(
-        sa.select(Shelf).where(Shelf.user_id == current_user.id, Shelf.name == shelf_name))
+        sa.select(Shelf).where(Shelf.user_id == user.id, Shelf.name == shelf_name))
 
     if existing_shelf:
         return jsonify({ 'error': 'Shelf with this name already exists' })
 
     # create a new shelf
-    new_shelf = Shelf(name=shelf_name, user_id=current_user.id)
+    new_shelf = Shelf(name=shelf_name, user_id=user.id)
     db.session.add(new_shelf)
     db.session.commit()
 
     return jsonify({ 'message': 'Shelf created successfully', 'shelf_id': new_shelf.id }), 201
 
 #[x]: Tested
-@flask_app.route('/api/books/search', methods=['GET','POST'], strict_slashes=False)
+@flask_app.route('/books/search', methods=['GET'], strict_slashes=False)
 # @login_required
+@jwt_required()
 def search_books():
     """API endpoint for book search
     """
@@ -329,7 +354,7 @@ def search_books():
     return jsonify(books)
 
 #[x]: Tested
-@flask_app.route('/api/books/add-book', methods=['POST'], strict_slashes=False)
+@flask_app.route('/books/add-book', methods=['POST'], strict_slashes=False)
 @login_required
 def add_book():
     """API endpoint for users to add books
@@ -337,6 +362,9 @@ def add_book():
     """
     # if request.method == 'POST':
     data = request.json
+    user_identity = get_jwt_identity()
+    user = db.session.scalar(sa.select(User).where(User.username == user_identity))
+
     title = data.get('title')
     author = data.get('author')
     genre = data.get('genre')
@@ -370,7 +398,7 @@ def add_book():
         db.session.commit()
 
     # add the book to user selected shelf
-    user_book = UserBook(user_id=current_user.id, book_id=book.id, shelf_id=shelf_id)
+    user_book = UserBook(user_id=user.id, book_id=book.id, shelf_id=shelf_id)
     db.session.add(user_book)
     db.session.commit()
 
@@ -380,8 +408,9 @@ def add_book():
     return jsonify({ 'message': 'Book added successfully!' })
 
 
-@flask_app.route('/api/books/edit/<int:book_id>', methods=['PUT'], strict_slashes=False)
-@login_required
+@flask_app.route('/books/edit/<int:book_id>', methods=['PUT'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def edit_book(book_id):
     """API endpoint for updating book details in a user's collection.
     """
@@ -408,13 +437,16 @@ def edit_book(book_id):
     return jsonify({ 'message': 'Book updated successfully!'})
 
 
-@flask_app.route('/api/books/delete/<int:book_id>', methods=['DELETE'], strict_slashes=False)
-@login_required
+@flask_app.route('/books/delete/<int:book_id>', methods=['DELETE'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def delete_book(book_id):
     """API endpoint to delete a book from the user's collection.
     """
+    user_identity = get_jwt_identity()
+    user = db.session.scalar(sa.select(User).where(User.username == user_identity))
     user_book = db.session.scalar(
-        sa.select(UserBook).where(UserBook.user_id == current_user.id, UserBook.book_id == book_id)
+        sa.select(UserBook).where(UserBook.user_id == user.id, UserBook.book_id == book_id)
     )
 
     if user_book:
@@ -427,14 +459,17 @@ def delete_book(book_id):
         # flash('Book not found!')
         # return redirect(url_for('user', username=current_user.username))
 
-@flask_app.route('/api/books/view/<int:book_id>', methods=['GET'], strict_slashes=False)
-@login_required
+@flask_app.route('/books/view/<int:book_id>', methods=['GET'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def view_single_book(book_id):
-    """API endpoint for to view a  book on a single page"""     
+    """API endpoint for to view a  book on a single page"""
+    user_identity = get_jwt_identity()
+    user = db.session.scalar(sa.select(User).where(User.username == user_identity))     
     user_book, book = db.session.scalar(
         sa.select(UserBook, Book)
         .join(Book, UserBook.book_id == Book.id)
-        .where(UserBook.user_id == current_user.id)
+        .where(UserBook.user_id == user.id)
     )
 
     if user_book and book:
@@ -455,28 +490,39 @@ def view_single_book(book_id):
         return jsonify({ 'error': 'Book not found' }), 404
     
 
-@flask_app.route('/api/books/genre/<genre>', methods=['GET'], strict_slashes=False)
-@login_required
+@flask_app.route('/books/genre/<genre>', methods=['GET'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def books_by_genre(genre):
     """Displays books by genre
     """
-    books = current_user.get_book_by_genre(genre)
+    user_id = get_jwt_identity()
+    books = user_id.get_book_by_genre(genre)
     return jsonify({ 'genre': genre, 'books': books})
     # return render_template('books_by_genre.html', genre=genre, books=books)
 
 
-@flask_app.route('/api/books/recent', methods=['GET'], strict_slashes=False)
-@login_required
+@flask_app.route('/books/recent', methods=['GET'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def recent_books():
-    """Displays most recent books added to the database
-    """
-    recent_books = Book.get_recent_books()
-    return jsonify({ 'books': recent_books})
-    # return render_template('recent_books.html', books=recent_books)
+    """Displays the most recent books added to the system."""
+    recent_books = Book.get_recent_books(limit=3)  # Fetch last 3 books in the system
+
+    books_data = [{
+        "title": book.title,
+        "author": book.author,
+        "cover_image": book.cover_image
+    } for book in recent_books]
+
+    return jsonify({
+        "books": books_data,
+        "books_count": len(books_data)
+    })
 
 
-@flask_app.route('/api/logout', methods=['POST'], strict_slashes=False)
+@flask_app.route('/logout', methods=['POST'], strict_slashes=False)
 def logout():
-    logout_user()
+    # logout_user()
     #return redirect (url_for('homePage'))
     return jsonify({ 'message': 'Logged out successfully'})

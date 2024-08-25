@@ -3,28 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { loginUser } from '../services/api';
 import '../styles/LoginPage.css';
 
-// function LoginPage() {
-//     const navigate = useNavigate(); // Initialize useNavigate
-//     const [formData, setFormData] = useState({ username: '', password: '', rememberMe: false });
-  
-//     const handleChange = (e) => {
-//       setFormData({ ...formData, [e.target.name]: e.target.value });
-//     };
-  
-//     const handleSubmit = async (e) => {
-//       e.preventDefault();
-//       try {
-//         const response = await loginUser(formData.username, formData.password, formData.rememberMe);
-//         console.log(response.data.message);
-//         if (response.status === 200) { // Check if login was successful
-//           navigate('/home'); // Redirect to the homepage
-//         }
-//       } catch (error) {
-//         console.error(error.response?.data?.error || 'Error during login');
-//       }
-//     };
-
-
 function LoginPage() {
     const [formData, setFormData] = useState({ username: '', password: '', rememberMe: false });
     const navigate = useNavigate();
@@ -37,13 +15,14 @@ function LoginPage() {
         e.preventDefault();
         try {
             const response = await loginUser(formData.username, formData.password, formData.rememberMe);
-            if (response.status === 200) {
+            if (response.status === 200 && response.data.access_token) {  // Check if login was successful and token is received
+                localStorage.setItem('JwtToken', response.data.access_token); // Store JWT in localStorage
                 navigate('/home'); // Redirect to the homepage
             } else {
                 console.error('Login failed with status:', response.status);
             }
         } catch (error) {
-            console.error('Error during login:', error.response?.data || error.message);
+            console.error('Error during login:', error.response?.data?.error || error.message);
         }
     };
 

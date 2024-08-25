@@ -19,7 +19,7 @@ def search_book_by_title(query):
     # append field and language query
     search_url += f"&fields=title,author_name,first_publish_year,isbn,cover_i,key&lang=en"
 
-    # Add a cache-busting parameter
+    # Add parameter to prvent caching issues
     search_url += f"&_={int(time.time() * 1000)}"
     print("Constructed Search URL:", search_url)
     # print("Constructed Search URL:", search_url)
@@ -95,6 +95,7 @@ def get_description(work_id):
         book_description = res.json().get('description')
         if isinstance(book_description, dict):
             book_description.get('value', 'N/A')
-        print(book_description)
+        if (book_description):
+            print(book_description)
     return book_description
 

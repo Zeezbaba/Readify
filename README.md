@@ -1,5 +1,6 @@
 # Readify
-[Landing page screenshot](./homePage.png)
+[Landing page screenshot](./landing.png)
+[Home page screenshot](./homePage.png)
 
 Welcome to **Readify**, a book tracking web application that allows you to manage your book collection effortlessly. With Readify, you can search for books, manually add them, and keep track of your reading list. The application is built using Flask for the backend and React for the frontend, providing a seamless and interactive user experience.
 

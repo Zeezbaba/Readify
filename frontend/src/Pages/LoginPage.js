@@ -4,7 +4,12 @@ import { loginUser } from '../services/api';
 import '../styles/LoginPage.css';
 
 function LoginPage() {
-    const [formData, setFormData] = useState({ username: '', password: '', rememberMe: false });
+    const [formData, setFormData] = useState({ 
+        username: '', 
+        password: '', 
+        rememberMe: false 
+    });
+
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -39,8 +44,8 @@ function LoginPage() {
                         <input 
                             type="email" 
                             id="email" 
-                            name="username" 
-                            value={formData.username} 
+                            name="email" 
+                            value={formData.email} 
                             onChange={handleChange} 
                             placeholder="Enter your email" 
                             required
@@ -59,6 +64,9 @@ function LoginPage() {
                     </div>
                     <button type="submit" className="login-btn">Log In</button>
                 </form>
+                <div className="forgot-password">
+                    Forgot password? <Link to="/forgot-password">Click here</Link>
+                </div>
                 <div className="signup-link">
                     Don't have an account? <Link to="/register">Sign up</Link>
                 </div>

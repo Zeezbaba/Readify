@@ -54,7 +54,6 @@ const HomePage = () => {
               <h2>{book.title}</h2>
               <p>{book.author}</p>
               <img src={book.cover_image || bookimage} alt={book.title} />
-              <button>Want to read</button>
             </div>
           ))
         ) : (

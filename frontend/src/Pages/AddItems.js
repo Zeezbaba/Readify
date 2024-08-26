@@ -61,7 +61,7 @@ const AddItems = () => {
     return (
         <div className="additems-page">
             <Navbar />
-            <h1>Add Items</h1>
+            <h1>Add Books</h1>
             <form onSubmit={handleSearch}>
                 <div>
                     <label>Search for a book:</label>

@@ -1,4 +1,5 @@
 # Readify
+[Landing page screenshot](./homePage.png)
 
 Welcome to **Readify**, a book tracking web application that allows you to manage your book collection effortlessly. With Readify, you can search for books, manually add them, and keep track of your reading list. The application is built using Flask for the backend and React for the frontend, providing a seamless and interactive user experience.
 
@@ -10,7 +11,7 @@ Welcome to **Readify**, a book tracking web application that allows you to manag
   - [Installation](#installation)
   - [Running the Application](#running-the-application)
 - [Pages Overview](#pages-overview)
-  - [Add Items Page](#add-items-page)
+  - [Add Books Page](#add-items-page)
   - [BookList Page](#booklist-page)
   - [Profile Page](#profile-page)
 - [Screenshots](#screenshots)
@@ -27,7 +28,7 @@ Welcome to **Readify**, a book tracking web application that allows you to manag
 
 ### Prerequisites
 
-- **Node.js** (for the frontend)
+- **Node.js version 18** (for the frontend)
 - **Python 3.x** (for the backend)
 - **Flask** and **React** libraries
 
@@ -84,22 +85,17 @@ Welcome to **Readify**, a book tracking web application that allows you to manag
 
 ## Pages Overview
 
-### Add Items Page
+### Add Books Page
 
-This page allows users to search for books via the `searchBooks` API and add them to their collection. It also includes a manual entry section for adding books by entering the title, author(s), description, and image URL.
+This page allows users to search for books via the OpenLibrary API and add them to their collection. It also includes a manual entry section for adding books by entering the title, author(s), description, and image URL.
 
-![Add Items Page Screenshot](./homepage.jpg)
+![Add Books Page Screenshot](./addBooks.png)
 
 ### BookList Page
 
-The BookList page displays all books added to the user's collection. It features a search bar at the top to filter through the list of books.
+The BookList page displays all books added to the user's collection.
 
-![BookList Page Screenshot](./Booklist.jpg)
+![BookList Page Screenshot](./bookList.png)
 
-## Screenshots
 
-Here are some screenshots of the Readify application:
 
-- Add Items Page
-- BookList Page
-- Profile Page

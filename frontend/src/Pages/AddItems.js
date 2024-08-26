@@ -11,9 +11,9 @@ const AddItems = () => {
     const [selectedBook, setSelectedBook] = useState(null);
     const [manualEntry, setManualEntry] = useState({
         title: '',
-        authors: '',
+        author: '',
         description: '',
-        coverUrl: ''
+        cover_image: ''
     });
     const [message, setMessage] = useState('');
 
@@ -52,7 +52,7 @@ const AddItems = () => {
             setSelectedBook(null);
             setBooks([]);
             setQuery('');
-            setManualEntry({ title: '', authors: '', description: '', coverUrl: '' });
+            setManualEntry({ title: '', author: '', description: '', cover_image: '' });
         } else {
             setMessage(result.message);
         }
@@ -81,7 +81,7 @@ const AddItems = () => {
                         {books.map((book, index) => (
                             <li key={index}>
                                 <div onClick={() => handleSelectBook(book)}>
-                                    <img src={book.coverUrl} alt={`${book.title} cover`} />
+                                    <img src={book.cover_image} alt={`${book.title} cover`} />
                                     <p>{book.title}</p>
                                     <p>{book.author}</p>
                                 </div>
@@ -96,7 +96,7 @@ const AddItems = () => {
                     <h3>Selected Book:</h3>
                     <p>{selectedBook.title}</p>
                     <p>{selectedBook.author}</p>
-                    <img src={selectedBook.coverUrl} alt={`${selectedBook.title} cover`} />
+                    <img src={selectedBook.cover_image} alt={`${selectedBook.title} cover`} />
                     <button onClick={handleSubmit}>Add this Book</button>
                 </div>
             )}

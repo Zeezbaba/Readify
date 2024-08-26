@@ -28,7 +28,7 @@ class User(UserMixin, db.Model):
     password_hash: str = db.Column(db.String(256), nullable=False)
     security_question: str = db.Column(db.String(256), nullable=False)
     security_answer: str = db.Column(db.String(256), nullable=False)
-    bio = db.Column(db.Text, nullable=True)
+    # bio = db.Column(db.Text, nullable=True)
 
     shelves: list['Shelf'] = db.relationship('Shelf', backref='user', lazy=True)
     books: list['UserBook'] = db.relationship('UserBook', backref='user', lazy=True)
@@ -96,6 +96,7 @@ class Shelf(UserMixin, db.Model):
         db.session.add(new_shelf)
         db.session.commit()
         return new_shelf
+
         
 class Book(UserMixin, db.Model):
     """ A book in the application

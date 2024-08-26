@@ -93,9 +93,10 @@ def login():
         return jsonify({'error': 'Invalid form submission'}), 400
 
     username = form_data.get("username")
+    email = form_data.get("email")
     password = form_data.get("password")
 
-    user = db.session.scalar(sa.select(User).where(User.email == username))
+    user = db.session.scalar(sa.select(User).where(User.email == email))
     if user is None:
         print("User not found")  # Debug print
         return jsonify({ 'error': 'Invalid username or password'}), 401
@@ -202,7 +203,7 @@ def user(username):
         } for user_book in user_books]
     
     # return render_template('user.html', user=user, shelves=shelves, books=books, page=page)
-    return jsonify({ 'user': user.username, 'shelves': shelves, 'books': books, 'page': page})
+    return jsonify({ 'user': user.username, 'shelves': shelves, 'books': book, 'page': page})
 
 @flask_app.route('/user/update-security-question', methods=['POST'])
 @jwt_required()
@@ -261,7 +262,7 @@ def get_user_shelves():
     #     sa.select(Shelf).where(Shelf.user_id == current_user.id)
     # ).all()
 
-    shelf_list = [{'id': shelf.id, 'name': shelf.name} for shelf in shelves]
+    shelf_list = [{'id': shelf.id, 'name': shelf.name} for shelf in shelf_list]
     return jsonify({ 'shelves': shelf_list }), 200
 
 #[x]: Tested

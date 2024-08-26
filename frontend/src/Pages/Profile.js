@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../styles/Profile.css';
-import { getUser } from '../services/api';
+import defaultProfilePic from '../assets/profile-pic.jpg';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -12,20 +13,7 @@ const Profile = () => {
   const [bio, setBio] = useState('');
   const [password, setPassword] = useState('');
   const [uploadedProfilePic, setUploadedProfilePic] = useState(null);
-  const [userData, setUserData] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-        try {
-            const data = await getUser(username); // Replace with dynamic username if needed
-            setUserData(data);
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-        }
-    };
-    fetchData();
-    }, []);
-    
   const handleBioChange = (e) => {
     setBio(e.target.value);
   };
@@ -90,7 +78,7 @@ const options = {
           alt="Profile"
           className="profile-picture"
         />
-        <h1 className="profile-name">{userData?.user || "Loading..."}</h1>
+        <h1 className="profile-name">Ariadne Snyder (she/her)</h1>
         <p className="profile-title">Communications Specialist</p>
       </div>
       <div className="profile-right">
@@ -112,11 +100,11 @@ const options = {
             <div className="dashboard-summary">
                 <div className="summary-card">
                     <h3>Total Unique Items</h3>
-                    <p>{userData?.books.length || 0}</p>
+                    <p>2</p>
                 </div>
                 <div className="summary-card">
                     <h3>Total Copies</h3>
-                    <p>{userData?.books.length || 0}</p>
+                    <p>2</p>
                 </div>
             </div>
 

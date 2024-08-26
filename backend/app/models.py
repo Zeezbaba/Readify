@@ -28,6 +28,7 @@ class User(UserMixin, db.Model):
     password_hash: str = db.Column(db.String(256), nullable=False)
     security_question: str = db.Column(db.String(256), nullable=False)
     security_answer: str = db.Column(db.String(256), nullable=False)
+    bio = db.Column(db.Text, nullable=True)
 
     shelves: list['Shelf'] = db.relationship('Shelf', backref='user', lazy=True)
     books: list['UserBook'] = db.relationship('UserBook', backref='user', lazy=True)
@@ -130,12 +131,22 @@ class Book(UserMixin, db.Model):
     def get_recent_books(limit=10):
         """Retrieve the most recent books added to the database."""
         # Query to select books ordered by their id (most recent first) with a limit
-        query = sa.select(Book).order_by(Book.id.desc()).limit(limit)
+        books = db.session.query(Book).order_by(
+            Book.id.desc()).limit(limit).all()
+        # query = sa.select(Book).order_by(Book.id.desc()).limit(limit)
     
         # Execute the query and fetch the results
-        result = db.session.execute(query).scalars().all()  # Scalars ensures we get Book objects directly
+        # result = db.session.execute(query).scalars().all()  # Scalars ensures we get Book objects directly
 
-        return result
+        return [book.to_dict() for book in books]
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'author': self.author,
+            'cover_image': self.cover_image,
+        }
 
     # @staticmethod
     # def get_recent_books(limit=10):

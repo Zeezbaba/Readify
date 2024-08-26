@@ -85,21 +85,76 @@ export const resetPassword = async (username, answer, newPassword) => {
     });
   };
 
+
 // Function to search for books
 export const searchBooks = async (searchTerm) => {
+  
     return axios.post(`${API_URL}/books/search`, { 'search term': searchTerm }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  };
+  
+  // Function to add a book
+  export const addBook = async (bookData) => {
+    console.log(bookData);
+    const  token = localStorage.getItem('JwtToken');
+    
+    return axios.post(`${API_URL}/books/add-book`, bookData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+        }
+      });
+  };
+  
+
+export const getAllBooks = async () => {
+    const token = localStorage.getItem('JwtToken');
+    return axios.get(`${API_URL}/books/recent`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
+  
+  
+export async function getUser(username) {
+  try {
+    const response = await axios.get(`/user/${username}`);
+  
+    if (response.status === 200) {
+      const userData = response.data;
+        // Process the user data as needed
+      console.log('User Data:', userData);
+      return userData;
+    } else {
+      throw new Error(`Error fetching user data. Status: ${response.status}`);
+    }
+  } catch (error) {
+      console.error('Error fetching user data:', error.message);
+      throw error;
+    }
+  }
+
+
+export const getUserProfile = async () => {
+  const token = localStorage.getItem('JwtToken');
+  return axios.get(`${API_URL}/user/profile`, {
+    headers: {
+        Authorization: `Bearer ${token}`
+      }
+  });
+};
+
+export const updateUserProfile = async (profileData) => {
+    const token = localStorage.getItem('JwtToken');
+    return axios.put(`${API_URL}/user/profile`, profileData, {
         headers: {
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
         }
     });
 };
 
-// Function to add a book
-export const addBook = async (bookData) => {
-    return axios.post(`${API_URL}/books/add-book`, { bookData });
-};
-
-
-export const getUser = async (username) => {
-    return axios.get(`${API_URL}/user/${username}`);
-};

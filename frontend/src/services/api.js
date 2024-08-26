@@ -163,65 +163,6 @@ export const resetPassword = async (username, answer, newPassword) => {
     });
   };
 
-// // Function to search for books
-// export const searchBooks = async (searchTerm) => {
-//     return axios.post(`${API_URL}/books/search`, { 'search term': searchTerm }, {
-//         headers: {
-//             'Content-Type': 'application/json'
-//         }
-//     });
-// };
-
-// Function to add a book
-// export const addBook = async (bookData) => {
-//     return axios.post(`${API_URL}/books/add-book`, { bookData });
-// };
-
-
-// Function to search for books
-// export const searchBooks = async (searchTerm) => {
-//     try {
-//         const response = await axios.get(`${API_URL}/books/search`, {
-//             params: { search_term: searchTerm },
-//             headers: { 'Content-Type': 'application/json' }
-//         });
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error searching for books:', error);
-//         return [];
-//     }
-// };
-
-// Function to add a book (either selected or manual)
-// export const addBook = async (bookData) => {
-//     try {
-//         const token = localStorage.getItem('JwtToken');
-//         const response = await axios.post(`${API_URL}/books/add-items`, bookData, {
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 Authorization: `Bearer ${token}`
-//             }
-//         });
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error adding the book:', error);
-//         return { success: false, message: 'Failed to add the book' };
-//     }
-// };
-
-// Function to add a book
-// export const addBook = async (bookData) => {
-//     const token = localStorage.getItem('JwtToken');
-//     console.log(bookData)
-//     return axios.post(`${API_URL}/books/add-items`,
-//       bookData, // This is the request body
-//       {
-//         headers: {
-//           Authorization: `Bearer ${token}`
-//         }
-//       }
-//     );
-//   };
 
 // Function to search for books
 export const searchBooks = async (searchTerm) => {
@@ -294,3 +235,4 @@ export const updateUserProfile = async (profileData) => {
         }
     });
 };
+

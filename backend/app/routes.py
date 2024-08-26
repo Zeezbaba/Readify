@@ -92,10 +92,10 @@ def login():
     if not form_data:
         return jsonify({'error': 'Invalid form submission'}), 400
 
-    email = form_data.get("email")
+    username = form_data.get("username")
     password = form_data.get("password")
 
-    user = db.session.scalar(sa.select(User).where(User.email == email))
+    user = db.session.scalar(sa.select(User).where(User.email == username))
     if user is None:
         print("User not found")  # Debug print
         return jsonify({ 'error': 'Invalid username or password'}), 401
@@ -471,12 +471,13 @@ def books_by_genre(genre):
 @jwt_required()
 def recent_books():
     """Displays the most recent books added to the system."""
-    recent_books = Book.get_recent_books(limit=3)  # Fetch last 3 books in the system
+    user_id = get_jwt_identity()
+    recent_books = Book.get_recent_books(user_id, limit=3)  # Fetch last 3 books in the system
 
     books_data = [{
-        "title": book.title,
-        "author": book.author,
-        "cover_image": book.cover_image
+        "title": book['title'],
+        "author": book['author'],
+        "cover_image": book['cover_image']
     } for book in recent_books]
 
     return jsonify({

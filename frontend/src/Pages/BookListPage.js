@@ -53,8 +53,7 @@ const BookListPage = () => {
                             <h2>{book.title}</h2>
                             <p>{book.author}</p>
                             <img src={book.cover_image || bookimage} alt={book.title} />
-                            <button>Want to read</button>
-                        </div>
+                            </div>
                     ))
                 ) : (
                     <div className="book-section">
@@ -71,4 +70,4 @@ const BookListPage = () => {
     );
 };
 
-export default BookListPage; */
+export default BookListPage;

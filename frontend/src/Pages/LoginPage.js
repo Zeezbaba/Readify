@@ -60,7 +60,7 @@ function LoginPage() {
                     <button type="submit" className="login-btn">Log In</button>
                 </form>
                 <div className="signup-link">
-                    Don't have an account? <Link to="/signup">Sign up</Link>
+                    Don't have an account? <Link to="/register">Sign up</Link>
                 </div>
             </main>
         </div>

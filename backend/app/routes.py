@@ -15,6 +15,7 @@ from backend.app.extensions import RegisterUser
 from backend.app.utils import search_book_by_title
 from flask_cors import CORS
 import os
+import random
 # import requests
 
 CORS(flask_app)
@@ -354,8 +355,9 @@ def search_books():
     return jsonify(books)
 
 #[x]: Tested
-@flask_app.route('/books/add-book', methods=['POST'], strict_slashes=False)
-@login_required
+@flask_app.route('/books/add-items', methods=['POST'], strict_slashes=False)
+# @login_required
+@jwt_required()
 def add_book():
     """API endpoint for users to add books
     into their shelve
@@ -376,7 +378,6 @@ def add_book():
 
     # validate inputs
     if not title or not author:
-        # flash('Title and Author are required!')
         return jsonify({ 'error': 'Title and Author are required!' }), 400
 
     # check if book already exists
@@ -401,10 +402,6 @@ def add_book():
     user_book = UserBook(user_id=user.id, book_id=book.id, shelf_id=shelf_id)
     db.session.add(user_book)
     db.session.commit()
-
-    # flash('Book added successfully!')
-    # return redirect(url_for('user', username=current_user.username))
-    # return render_template('add_book.html', title='Add Book')
     return jsonify({ 'message': 'Book added successfully!' })
 
 
@@ -519,6 +516,48 @@ def recent_books():
         "books": books_data,
         "books_count": len(books_data)
     })
+
+
+@flask_app.route('/user/profile', methods=['GET', 'PUT'])
+@jwt_required()
+def user_profile():
+    """Retrieve or update user profile"""
+    user_id = get_jwt_identity()
+
+    # Fetch user profile (GET request)
+    if request.method == 'GET':
+        user = db.session.scalar(sa.select(User).where(User.id == user_id))
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        user_data = {
+            'username': user.username,
+            'bio': user.bio,
+            'profile_pic': user.profile_pic_url,
+        }
+        return jsonify(user_data)
+
+    # Update user profile (PUT request)
+    if request.method == 'PUT':
+        data = request.json
+
+        user = db.session.scalar(sa.select(User).where(User.id == user_id))
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        bio = data.get('bio', user.bio)
+        password = data.get('password', None)
+        profile_pic = data.get('profile_pic', None)
+
+        if bio:
+            user.bio = bio
+        if password:
+            user.set_password(password)  # Assuming you have a set_password method that hashes the password
+        if profile_pic:
+            user.profile_pic_url = profile_pic
+
+        db.session.commit()
+        return jsonify({'message': 'Profile updated successfully!'})
 
 
 @flask_app.route('/logout', methods=['POST'], strict_slashes=False)

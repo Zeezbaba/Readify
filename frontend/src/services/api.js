@@ -39,9 +39,9 @@ import axios from 'axios';
 const API_URL = 'http://localhost:5000';
 
 // Login service
-export const loginUser = async (username, password, rememberMe) => {
+export const loginUser = async (email, password, rememberMe) => {
     return axios.post(`${API_URL}/login`, {
-      username,
+      email,
       password,
       "remember me": rememberMe
     });

@@ -129,10 +129,13 @@ class Book(UserMixin, db.Model):
     # TODO: Add relevant functions for books
 
     @staticmethod
-    def get_recent_books(limit=10):
+    def get_recent_books(user_id, limit=10):
         """Retrieve the most recent books added to the database."""
         # Query to select books ordered by their id (most recent first) with a limit
-        books = db.session.query(Book).order_by(
+        # books = db.session.query(Book).order_by(
+        #     Book.id.desc()).limit(limit).all()
+
+        books = db.session.query(Book).join(UserBook).filter(UserBook.user_id == user_id).order_by(
             Book.id.desc()).limit(limit).all()
         # query = sa.select(Book).order_by(Book.id.desc()).limit(limit)
     

@@ -471,12 +471,13 @@ def books_by_genre(genre):
 @jwt_required()
 def recent_books():
     """Displays the most recent books added to the system."""
-    recent_books = Book.get_recent_books(limit=3)  # Fetch last 3 books in the system
+    user_id = get_jwt_identity()
+    recent_books = Book.get_recent_books(user_id, limit=3)  # Fetch last 3 books in the system
 
     books_data = [{
-        "title": book.title,
-        "author": book.author,
-        "cover_image": book.cover_image
+        "title": book['title'],
+        "author": book['author'],
+        "cover_image": book['cover_image']
     } for book in recent_books]
 
     return jsonify({

@@ -5,7 +5,7 @@ import '../styles/LoginPage.css';
 
 function LoginPage() {
     const [formData, setFormData] = useState({ 
-        username: '', 
+        email: '', 
         password: '', 
         rememberMe: false 
     });
@@ -19,7 +19,7 @@ function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await loginUser(formData.username, formData.password, formData.rememberMe);
+            const response = await loginUser(formData.email, formData.password, formData.rememberMe);
             if (response.status === 200 && response.data.access_token) {  // Check if login was successful and token is received
                 localStorage.setItem('JwtToken', response.data.access_token); // Store JWT in localStorage
                 navigate('/home'); // Redirect to the homepage

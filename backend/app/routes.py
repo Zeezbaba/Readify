@@ -92,10 +92,10 @@ def login():
     if not form_data:
         return jsonify({'error': 'Invalid form submission'}), 400
 
-    username = form_data.get("username")
+    email = form_data.get("email")
     password = form_data.get("password")
 
-    user = db.session.scalar(sa.select(User).where(User.email == username))
+    user = db.session.scalar(sa.select(User).where(User.email == email))
     if user is None:
         print("User not found")  # Debug print
         return jsonify({ 'error': 'Invalid username or password'}), 401

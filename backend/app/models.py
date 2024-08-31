@@ -28,7 +28,8 @@ class User(UserMixin, db.Model):
     password_hash: str = db.Column(db.String(256), nullable=False)
     security_question: str = db.Column(db.String(256), nullable=False)
     security_answer: str = db.Column(db.String(256), nullable=False)
-    # bio = db.Column(db.Text, nullable=True)
+    bio = db.Column(db.Text, nullable=True)
+    profile_pic_url = db.Column(db.String(200), nullable=True)
 
     shelves: list['Shelf'] = db.relationship('Shelf', backref='user', lazy=True)
     books: list['UserBook'] = db.relationship('UserBook', backref='user', lazy=True)
@@ -53,6 +54,12 @@ class User(UserMixin, db.Model):
                 bool: True if passsword matches, else False
         """
         return check_password_hash(self.password_hash, password)
+
+    def set_security_answer(self, answer: str) -> None:
+        """Generates a hashed security answer and
+        stores it in the `security_answer` attribute.
+        """
+        self.security_answer = generate_password_hash(answer)
     
     def check_security_answer(self, answer):
         """validate the answer provided the user

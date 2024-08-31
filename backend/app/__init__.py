@@ -10,7 +10,8 @@ import os
 
 flask_app = Flask(__name__, static_folder='static') # static_url_path='/static'
 flask_app.config.from_object(Config)
-CORS(flask_app) # resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+# CORS(flask_app) # resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(flask_app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 db = SQLAlchemy(flask_app)
 # login = LoginManager(flask_app)

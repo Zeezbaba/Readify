@@ -81,10 +81,6 @@ def homePage():
 @flask_app.route('/login', methods=['POST'], strict_slashes=False)
 # @jwt_required()
 def login():
-    # user_id = get_jwt_identity()
-    # if user_id:
-    #     return jsonify({ 'message': 'Already logged in' }), 200
-
     # get json input from frontend form
     form_data = request.get_json()
     print("Received form data:", form_data)  # Debug print
@@ -105,8 +101,11 @@ def login():
         print("Password check failed")  # Debug print
         return jsonify({'error': 'Invalid username or password'}), 401
 
+    # Generate JWT token and return it to th client
+    access_token = create_access_token(identity=user.id)
+
         
-    return jsonify({'message': 'Login successful', 'access_token': create_access_token(user.id)})
+    return jsonify({'message': 'Login successful', 'access_token': access_token}), 200
     
     
 
@@ -137,8 +136,9 @@ def register():
             return jsonify({ 'error': 'User already exists!' }), 409
         
         # create user and set password
-        user = User(username=username, email=email, security_question=security_question, security_answer=security_answer)
+        user = User(username=username, email=email, security_question=security_question)
         user.set_password(password)
+        user.set_security_answer(security_answer)
         db.session.add(user)
         db.session.commit()
         return jsonify({ 'message': 'Registration Successful!'}), 201
@@ -222,6 +222,60 @@ def update_security_question():
     db.session.commit()
     return jsonify({ 'message': 'Security question updated successfully' }), 200
 
+
+# @flask_app.route('/user/verify-answer', methods=['POST'])
+# def verify_answer():
+#     """Verify the user's security answer"""
+#     data = request.json
+#     username = data.get('username')
+#     answer = data.get('answer')
+    
+#     # Input validation
+#     if not username or not answer:
+#         return jsonify({'error': 'Username and answer are required'}), 400
+
+#     # try:
+#         # Fetch the user from the database
+#     user = db.session.scalar(sa.select(User).where(User.username == username))
+        
+#     if not user:
+#         return jsonify({'error': 'User not found'}), 404
+
+#         # Check if the security answer matches
+#     if user.check_security_answer(answer):
+#         return jsonify({'message': 'Answer verified successfully'}), 200
+#     else:
+#         return jsonify({'error': 'Security answer does not match'}), 401
+
+    # except Exception as e:
+    #     app.logger.error(f"Error verifying answer: {str(e)}")
+    #     return jsonify({'error': 'An error occurred while verifying the answer'}), 500
+
+
+@flask_app.route('/user/verify-answer', methods=['POST'])
+def verify_answer():
+    """Verify the user's security answer"""
+    data = request.json
+    username = data.get('username')
+    answer = data.get('answer')
+    
+    # Input validation
+    if not username or not answer:
+        return jsonify({'error': 'Username and answer are required'}), 400
+
+    # Fetch the user from the database
+    user = db.session.scalar(sa.select(User).where(User.username == username))
+        
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Check if the security answer matches
+    if user.check_security_answer(answer):
+        return jsonify({'valid': True, 'message': 'Answer verified successfully'}), 200
+    else:
+        return jsonify({'valid': False, 'error': 'Security answer does not match'}), 401
+    
+
 @flask_app.route('/user/security-question/<username>', methods=['GET'])
 def get_security_question(username):
     """Gets the user security question
@@ -242,8 +296,8 @@ def recover_password():
     if not user:
         return jsonify({ 'error': 'User not found' }), 404
     
-    if not user.check_security_answer(data['answer']):
-        return jsonify({ 'error': 'Security answer does not match' }), 401
+    # if not user.check_security_answer(data['answer']):
+    #     return jsonify({ 'error': 'Security answer does not match' }), 401
     
     user.set_password(data['newPassword'])
     db.session.commit()
@@ -295,29 +349,59 @@ def create_shelf():
     return jsonify({ 'message': 'Shelf created successfully', 'shelf_id': new_shelf.id }), 201
 
 #[x]: Tested
+# @flask_app.route('/books/search', methods=['GET'], strict_slashes=False)
+# @jwt_required()
+# def search_books():
+#     """API endpoint for book search
+#     """
+#     # books = []
+#     # if request.method == 'POST':
+#     # search_term = request.json.get('search term', '')
+#     search_term = request.args.get('search_term')
+#     # search_term = request.json.get('search term', '')
+#     # search_term = request.args.get('q', '')
+#     # print(search_term)
+
+#     query = {}
+#     if search_term:
+#         if 'by' in search_term.lower():
+#             title, author = map(str.strip, search_term.lower().split(' by ', 1))
+#             query['title'] = title
+#             query['author'] = author
+#         else:
+#             query['general'] = search_term
+#     print("Query Dictionary in route.py:", query)
+#     books = search_book_by_title(query)
+#     return jsonify(books)
+
 @flask_app.route('/books/search', methods=['GET'], strict_slashes=False)
 @jwt_required()
 def search_books():
-    """API endpoint for book search
-    """
-    # books = []
-    # if request.method == 'POST':
-    # search_term = request.json.get('search term', '')
+    """API endpoint for book search"""
+    current_user = get_jwt_identity()
+    print("Current user JWT identity:", current_user)
+    
     search_term = request.args.get('search_term')
-    # search_term = request.json.get('search term', '')
-    # search_term = request.args.get('q', '')
-    # print(search_term)
+    print("Search term received:", search_term)
+
+    if not search_term:
+        return jsonify({"error": "Search term is required"}), 422
 
     query = {}
-    if search_term:
-        if 'by' in search_term.lower():
-            title, author = map(str.strip, search_term.lower().split(' by ', 1))
-            query['title'] = title
-            query['author'] = author
-        else:
-            query['general'] = search_term
+    if 'by' in search_term.lower():
+        title, author = map(str.strip, search_term.lower().split(' by ', 1))
+        query['title'] = title
+        query['author'] = author
+    else:
+        query['general'] = search_term
+
     print("Query Dictionary in route.py:", query)
+
     books = search_book_by_title(query)
+    
+    if 'error' in books:
+        return jsonify(books), 422
+
     return jsonify(books)
 
 #[x]: Tested
@@ -341,7 +425,10 @@ def add_book():
     publication_date = data.get('publication_date', None)
     cover_image = data.get('cover_image_url')
     description = data.get('description')
-    shelf_id = data.get('shelf_id', 1)
+    shelf_id = data.get('shelf_id', None)
+
+    # shelf_id is optional
+    # shelf_id = data.get('shelf_id', None)
 
     # validate inputs
     if not title or not author:
@@ -473,7 +560,7 @@ def books_by_genre(genre):
 def recent_books():
     """Displays the most recent books added to the system."""
     user_id = get_jwt_identity()
-    recent_books = Book.get_recent_books(user_id, limit=3)  # Fetch last 3 books in the system
+    recent_books = Book.get_recent_books(user_id, limit=5)  # Fetch last 5 books in the system
 
     books_data = [{
         "title": book['title'],
@@ -531,6 +618,4 @@ def user_profile():
 
 @flask_app.route('/logout', methods=['POST'], strict_slashes=False)
 def logout():
-    # logout_user()
-    #return redirect (url_for('homePage'))
     return jsonify({ 'message': 'Logged out successfully'})

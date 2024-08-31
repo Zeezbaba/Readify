@@ -47,7 +47,6 @@ export const loginUser = async (email, password, rememberMe) => {
     });
   };
 
-
   
   // Registration service
 export const registerUser = async (username, email, password, securityQuestion, securityAnswer) => {
@@ -61,18 +60,40 @@ export const registerUser = async (username, email, password, securityQuestion, 
 };
   
   // Forgot password - get security question
-export const getSecurityQuestion = async (username) => {
-    return axios.post(`${API_URL}/user/forgot-password`, { username });
-  };
+// export const getSecurityQuestion = async (username) => {
+//     return axios.post(`${API_URL}/user/forgot-password`, { username });
+//   };
   
-  // Password recovery - reset password
-export const resetPassword = async (username, answer, newPassword) => {
-    return axios.post(`${API_URL}/user/recover-password`, {
-      username,
-      answer,
-      newPassword
-    });
-  };
+//   // Password recovery - reset password
+// export const resetPassword = async (username, answer, newPassword) => {
+//     return axios.post(`${API_URL}/user/recover-password`, {
+//       username,
+//       answer,
+//       newPassword
+//     });
+//   };
+
+
+// Forgot password - get security question
+export const getSecurityQuestion = async (username) => {
+  return axios.post(`${API_URL}/user/forgot-password`, { username });
+};
+
+// Verify security answer
+export const verifySecurityAnswer = async (username, answer) => {
+  return axios.post(`${API_URL}/user/verify-answer`, {
+    username,
+    answer
+  });
+};
+
+// Password recovery - reset password
+export const resetPassword = async (username, newPassword) => {
+  return axios.post(`${API_URL}/user/recover-password`, {
+    username,
+    newPassword
+  });
+};
 
   // Fetch home page data (user info and recent books)
   export const getHomePageData = async () => {
@@ -87,14 +108,39 @@ export const resetPassword = async (username, answer, newPassword) => {
 
 
 // Function to search for books
-export const searchBooks = async (searchTerm) => {
-  
-    return axios.post(`${API_URL}/books/search`, { 'search term': searchTerm }, {
+export const searchBooks = async (query) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+      throw new Error('No token found, user is not authenticated.');
+  }
+
+  const response = await fetch(`/books/search?search_term=${encodeURIComponent(query)}`, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
       }
-    });
-  };
+  });
+
+  if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Search failed');
+  }
+
+  const data = await response.json();
+  return data;
+};
+
+// export const searchBooks = async (query) => {
+//   const response = await fetch(`/books/search?search_term=${encodeURIComponent(query)}`, {
+//       method: 'GET',
+//       headers: {
+//           'Authorization': `Bearer ${localStorage.getItem('token')}`  // add your JWT token if necessary
+//       }
+//   });
+//   const data = await response.json();
+//   return data;
+// };
   
   // Function to add a book
   export const addBook = async (bookData) => {
@@ -156,5 +202,23 @@ export const updateUserProfile = async (profileData) => {
             'Content-Type': 'application/json'
         }
     });
+};
+
+// import { useHistory } from 'react-router-dom';  // Assuming you're using react-router
+
+// Logout service
+export const logoutUser = async () => {
+  try {
+    // Call the logout endpoint
+    await axios.post(`${API_URL}/logout`);
+    
+    // Remove token from localStorage
+    localStorage.removeItem('JwtToken');
+    
+    // Redirect to login page
+    window.location.href = '/login';
+  } catch (error) {
+    console.error('Error logging out:', error);
+  }
 };
 

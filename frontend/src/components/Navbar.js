@@ -1,8 +1,18 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { logoutUser } from '../services/api';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+        await logoutUser()
+
+        // Clear token from local storage
+        localStorage.removeItem('JwtToken');
+
+        navigate('/login');
+    };
     return (
         <nav className="navbar">
             <div className="navbar-logo">
@@ -22,6 +32,9 @@ const Navbar = () => {
                 </li>
                 <li>
                     <NavLink to="/profile" activeClassName="active">Profile</NavLink>
+                </li>
+                <li>
+                    <button className="logout-button" onClick={handleLogout}>Logout</button>
                 </li>
             </ul>
         </nav>

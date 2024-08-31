@@ -37,8 +37,23 @@
     transition: background-color 0.3s ease;
 }
 
+/* Logout Button Styling */
+.logout-button {
+    background-color: transparent;
+    border: none;
+    color: #333;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    /* font-family: inherit; */
+}
+
 /* Hover and Active States */
-.navbar-links a:hover {
+.navbar-links a:hover,
+.logout-button:hover {
     background-color: #FBD47C;
     color: #333;
 }
@@ -59,16 +74,14 @@
         flex-direction: column;
         width: 100%;
     }
-    .nav-links:hover {
-        color: #007bff; 
-      }
 
     .navbar-links li {
         margin-left: 0;
         width: 100%;
     }
 
-    .navbar-links a {
+    .navbar-links a,
+    .logout-button {
         display: block;
         width: 100%;
         text-align: left;

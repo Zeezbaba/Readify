@@ -25,6 +25,7 @@ const App = () => {
             <Route path="/book-list" element={<BookListPage />} />
             <Route path="/add-books" element={<AddItems />} />
             <Route path="/profile" element={<Profile />} />
+            {/* <Route path="/logout" element={<LogoutButton />} /> */}
           </Routes>
         </main>
       </div>
